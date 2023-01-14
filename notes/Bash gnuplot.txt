@@ -1,0 +1,65 @@
+cse13s notes:
+bash:
+0 means exited without errors
+1 means exited with errors/false
+arguments separated by spaces
+bash scripts have .sh ending.
+bash scripts have #!/bin/bash at first line.
+chmod +x [filename].sh
+echo is print
+ls -a show hidden files
+df -h human readable storage check
+mkcd mkdr then cd
+head -n [number] prints first number lines of file
+wc counts characters, words, lines in a file
+diff shows differences of two files
+uniq filters out repeated lines in a file. also lists # of times it appears
+sort works lexicographically but can be set to sort numerically
+man [number] [command] shows details of command. section number takes you to specific part of description. General Commands=1, System Calls=2, Library functions=3
+by default, each unix process has its own stdin, stdout, stderr
+variables assigned thusly: number=12 #note no space
+Special parameters:
+$1 - first argument passed by a function
+$? - exit status of last command
+$@ - all arguments passed in a command
+
+conditionals:
+test is a command that evaluates expressions
+ex:
+test "hello = hello" # note the space, this equals is checking for equivalency
+echo $? #returns 0
+test "hello = gutentag"
+echo $? #returns 1
+
+if [ -f mystery ]; then echo "file"; else echo "directory"; fi #checks if mystery is a file. square brackets indicate a test. -f tests if its argument is a file. [[]] is actually more robust 
+
+loops:
+while ; do ; done
+for (( i=0; i < 10; i++ )); do echo $i; done
+(()) indicates arithmetic context. [[]] indicates lexicographical context
+for {0..9}; do echo $i; done
+ .. indicates a range
+can also iterate over a file:
+for f in *.txt; do  ; done
+* looks for patterns, so it will find all files ending in .txt
+
+file redirection:
+can have a program take a file as it's input or write it's output to a file
+ex: head < full.txt > first10.txt #input full.txt into head and write output to first10.txt
+2> redirects stderr of the program, so you can do:
+head < full.text > first10.txt 2> errors.txt #writes errors to a file
+you can also redirect the erros to /dev/null if you want to hide the errors
+
+Pipes:
+allows stdout of one process be piped to stdin of another process.
+ex: ls | sort -r
+displays contents of directory in reverse lexicographical order
+
+here-documents:
+way of passing data into a command. Good for when you don't want to write an entire full file to redirect into a command.
+specify the start and end of a here-document with END. 
+
+
+gnuplot:
+.dat has data information
+.plot has plotting instructions
