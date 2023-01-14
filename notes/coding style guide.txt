@@ -1,0 +1,54 @@
+coding style guide
+use clang-format
+can use:
+clang-format -i -style=file *.{c,h}
+-i says for files to modified in place.
+-style=file *.{c,h} tells clang-format to look for the .clang-format file that's been included in our repo.
+
+compile with:
+clang -Wall -Wextra -Werror -Wpendantic -o hello hello.c
+each one of the flags deal with certain errors
+this can be put in the makefile
+
+scan-build runs clang analyzer on code, finds potential bugs and errors. needs Makefile. ex: scan-build make
+
+snake case variable naming convention aka all lowercase, separated by _
+all functions require block comment. function's purpose, return value, parameters it accepts.
+comments should explain why and have use. use // instead of /*
+indentation with 4 spaces, not tabs
+100 char line width limit
+cite all code if from a TA or stackoverflow
+
+integers:
+include inttypes.h to use fixed width integer types to save space.
+intN_t signed
+uinN_t unsigned, where n is the width of the integer
+to print:
+ex: printf ("number: " PRId64 "\n", n);
+- can replace d with u for unsigned print, can also replace wtih x or o to print in hex and octal respectively. 64 has to be the size of the int.
+
+float 7 decimal digits
+double 15 decimal digits
+
+constants:
+does not mean a value is constant, just makes a value read-only
+int const *foo - pointer to a const int type
+int *const foo - constant pointer to int
+
+static
+-declared inside function if variable needs to persist across function calls but only exist inside function
+-declared outside function to persist across function calls but exist outside function
+
+extern
+- allows for a variable or function be called from any one of the program's files.
+
+enumeration- assigning names to a set of constants
+
+make sure in switch statements to finish each case with break;
+be sure to have a default case
+
+macro:
+you can define a true constant, called a macro, using #define. snakecase all caps
+dangerous as it just replaces whereever you use it with whatever you define it as
+Inline function:
+body of function is coppied every context where it's used, meant for very small function. too many and it will bloat the program
