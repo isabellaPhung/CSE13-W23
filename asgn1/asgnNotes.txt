@@ -22,7 +22,7 @@ dump output in a file, then parse file for x and y values?
 from full bash guide:
 ex:
 IFS=<separation symbol> read -ra <array_name> << "string or file"
-(IFS definition: http://mywiki.wooledge.org/IFS. input field separator. special variable. read command tells it to split the input)
+(IFS definition: http://mywiki.wooledge.org/IFS. input field separator. special variable. read command tells it to split the input. https://unix.stackexchange.com/questions/209123/understanding-ifs-read-r-line)
 start with taking all input and putting it into an array, the input will consist of something like
 "   0   0   0.9     0.1 1"
 start with checking the final char of each line, is it 1 or 0? sort into separate arrays of in circle and not in circle

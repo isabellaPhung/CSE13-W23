@@ -6,7 +6,7 @@ bash:
 arguments separated by spaces
 bash scripts have .sh ending.
 bash scripts have #!/bin/bash at first line.
-chmod +x [filename].sh
+chmod +x [filename].sh when you're going to execute your script, this turns it into an executable.
 echo is print
 ls -a show hidden files
 df -h human readable storage check
@@ -32,7 +32,7 @@ echo $? #returns 0
 test "hello = gutentag"
 echo $? #returns 1
 
-if [ -f mystery ]; then echo "file"; else echo "directory"; fi #checks if mystery is a file. square brackets indicate a test. -f tests if its argument is a file. [[]] is actually more robust 
+if [ -f mystery ]; then echo "file"; else echo "directory"; fi # fi indicates the end of the if statement. checks if mystery is a file. square brackets indicate a test. -f tests if its argument is a file. [[]] is actually more robust 
 
 loops:
 while ; do ; done
@@ -47,6 +47,7 @@ for f in *.txt; do  ; done
 file redirection:
 can have a program take a file as it's input or write it's output to a file
 ex: head < full.txt > first10.txt #input full.txt into head and write output to first10.txt
+>> different from >. >> just appends to the end of the file
 2> redirects stderr of the program, so you can do:
 head < full.text > first10.txt 2> errors.txt #writes errors to a file
 you can also redirect the erros to /dev/null if you want to hide the errors
