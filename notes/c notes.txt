@@ -1,0 +1,6 @@
+c notes
+scanf - like printf but for input
+printf("%3d %6d\n", fahr, celsius); prints fahr in field 3 digits wide, celsius in a field 6 digits wide. prints values in a column like form
+%octal, %x hexadecimal,%c character, %s character string, %% for itself
+copying a file, you have to do it a character at a time
+// or /* for comments

@@ -2,6 +2,7 @@ cse13s notes:
 bash:
 0 means exited without errors
 1 means exited with errors/false
+# for comments in bash
 arguments separated by spaces
 bash scripts have .sh ending.
 bash scripts have #!/bin/bash at first line.
