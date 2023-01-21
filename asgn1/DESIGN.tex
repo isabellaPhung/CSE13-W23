@@ -1,21 +1,38 @@
 \documentclass{article}
-\usepackage{fullpage,fourier,booktabs,amsmath}
-\usepackage[english]{babel}
-\usepackage[autostyle, english=american]{csquotes}
-\MakeOuterQuote{"}
-\title{Lab 1: Estimating Pi with Coconuts}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{ {./}}
+
+\title{Estimating Pi Using Coconuts}
 \author{Isabella Phung}
-\begin{document}\maketitle
+\date{January 20, 2023}
+
+\begin{document}
+
+\maketitle
 
 \section{Introduction}
 
-The irrational number pi is available in programming and C in a variety of libraries. Utlizing the digit in most applications requires less than 10 digits. There are a wide variety of ways to estimate pi, one of which is illustrated in the following program known as monte_carlo.
-The monte_carlo program was written by the instructors of the CSE13S Winter 2023 class and estimates pi by drawing a unit square, inscribing a circle within it and dropping random points within the square. By finding the ratio between the number of points within the circle in comparison to the number of points outside of the circle, we should get approximately \frac{\pi}{4}.
+The irrational number pi is available in programming and C in a variety of libraries. Utlizing the digit in most applications requires less than 10 digits. There are a wide variety of ways to estimate pi, one of which is illustrated in the following program known as monte\textunderscore carlo.
+The monte\textunderscore carlo program was written by the instructors of the CSE13S Winter 2023 class and estimates pi by drawing a unit square, inscribing a circle within it and dropping random points within the square. By finding the ratio between the number of points within the circle in comparison to the number of points outside of the circle, we should get approximately $$\frac{\pi}{4}$$. If this value is multiplied by 4, we get our approximated pi value!
+
+\section{Method}
+The monte\textunderscore carlo program follows the following approximate steps to perform an approximation:
+generate random x and y value within the unit square, so somewhere between 0 and 1.
+using the formula for a unit circle,
+$$x^2 + y^2 = 1$$
+The distance from the origin of the circle is found which can also be described as the readius of the inscribed circle.
+If this origin is less then 1, then it's within the circle, greater than 1, it's outside the circle.
 
 \section{Diagrams}
+For clarity and visual simplicity, the graph shown in this paper will not feature a full circle but rather a quarter circle instead. The general principle still remains the same.
+\includegraphics{Note}
+Points outside of the circle are distinguished in red in comparison to the blue points illustrated within the circle.
 
-
-\section{Conclusion}
-
+\section{Error}
+In order to illustrate the increase of accuracy as the monte\textunderscore carlo is run more times, the following graph was generated illustrating the difference between the approximated value of pi that monte\textunderscore carlo spits out in comparison to an accepted value of pi.
+The accepted value of pi was 3.1415926535, as recommended by Dev, a TA in the CSE13S class.
+The following formula was used to calculate error
 
 \end{document}
+
