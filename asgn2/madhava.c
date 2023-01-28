@@ -16,6 +16,7 @@ double pi_madhava(void){
        factor = numerator/denominator;
        total += factor;
     }
+    total = newton_sqrt(12) * total;
     return total;
 }
 
