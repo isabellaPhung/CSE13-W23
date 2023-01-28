@@ -3,9 +3,10 @@
 
 int static iterations;
 
-int e(void){
+double e(void){
     double factor;
     double total;
+    int denominator;
     
     total = 1;
     iterations = 1;
@@ -20,8 +21,4 @@ int e(void){
 
 int e_terms(void){
     return iterations;
-}
-
-int main(void){
-    printf(e());
 }
