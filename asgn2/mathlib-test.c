@@ -28,43 +28,71 @@ void usage(char *exec) {
         exec);
 }
 
+void e_test(void){ 
+    double e_value = e();
+    printf("e() = %6.15f, M_E = %6.15f Difference: %6.15f\n", e_value, M_E, M_E - e_value);
+}
+
+void bbp_test(void){ 
+     double pi = pi_bbp();
+     printf("pi_bbp() = %6.15f, M_PI = %6.15f Difference: %6.15f\n", pi, M_PI, M_PI - pi);
+}
+
+void madhava_test(void){
+    double pi = pi_madhava();
+    printf("pi_madhava() = %6.15f, M_PI = %6.15f Difference: %6.15f\n" , pi, M_PI, M_PI - pi);
+}
+
+void euler_test(void){
+    double pi = pi_euler();
+    printf("pi_euler() = %6.15f, M_PI = %6.15f Difference: %6.15f\n", pi, M_PI, M_PI - pi);
+}
+
+void viete_test(void){
+    double pi = pi_viete();
+    printf("pi_viete() = %6.15f, M_PI = %6.15f Difference: %6.15f\n", pi, M_PI, M_PI - pi);
+}
+
+void newton_test(void){
+    double MI_sqrt;
+    double sqrt_value;
+    for (int i = 1; i <= 10; i++) {
+        sqrt_value = sqrt_newton(i);
+        MI_sqrt = sqrt(i);
+        printf("sqrt_newton(%d) = %6.15f, sqrt(%d) = %6.15f Difference: %6.15f\n", i, sqrt_value, i, MI_sqrt, MI_sqrt - sqrt_value);
+    }
+}
+
 int main(int argc, char **argv) {
     int opt = 0;
 
     while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
         switch (opt) {
-            double pi;
-            double e_value;
-            double sqrt_value;
-            double MI_sqrt;
-        case 'a': break;
+        case 'a': 
+            e_test();
+            bbp_test();
+            madhava_test();
+            euler_test();
+            viete_test();
+            newton_test();
+            break;
         case 'e':
-            e_value = e();
-            printf("e() = %6.15f, M_E = %6.15f Difference: %6.15f\n", e_value, M_E, M_E - e_value);
+            e_test();
             break;
         case 'b':
-            pi = pi_bbp();
-            printf("pi_bbp() = %6.15f, M_PI = %6.15f Difference: %6.15f\n", pi, M_PI, M_PI - pi);
+            bbp_test();
             break;
         case 'm':
-            pi = pi_madhava();
-            printf("pi_madhava() = %6.15f, M_PI = %6.15f Difference: %6.15f\n" , pi, M_PI, M_PI - pi);
+            madhava_test(); 
             break;
         case 'r':
-            pi = pi_euler();
-            printf("pi_euler() = %6.15f, M_PI = %6.15f Difference: %6.15f\n", pi, M_PI, M_PI - pi);
+            euler_test();  
             break;
         case 'v':
-            pi = pi_viete();
-            printf("pi_viete() = %6.15f, M_PI = %6.15f Difference: %6.15f\n", pi, M_PI, M_PI - pi);
+            viete_test();  
             break;
         case 'n':
-
-            for (int i = 1; i <= 10; i++) {
-                sqrt_value = sqrt_newton(i);
-                MI_sqrt = sqrt(i);
-                printf("sqrt_newton(%d) = %6.15f, sqrt(%d) = %6.15f Difference: %6.15f\n", i, sqrt_value, i, MI_sqrt, MI_sqrt - sqrt_value);
-            }
+            newton_test();
             break;
         default:
             usage(argv[0]);

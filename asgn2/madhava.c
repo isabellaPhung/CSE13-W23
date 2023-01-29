@@ -24,6 +24,27 @@ double pi_madhava(void) {
     return total;
 }
 
+double pi_madhava_n(int n) {
+    double total = 1;
+    double numerator = 1;
+    double denominator = 1;
+    double factor = 1;
+
+    iterations++;
+    do{
+        numerator = numerator * (-1.0 / 3.0);
+        denominator += 2;
+        factor = numerator / denominator; 
+        total += factor; 
+        //printf("%f\n",total);
+        iterations++;
+    }while(absolute(factor) > EPSILON && iterations <= n);
+    
+    total = sqrt_newton(12) * total;
+    return total;
+}
+
+
 int madhava_terms(void) {
     return iterations;
 }
