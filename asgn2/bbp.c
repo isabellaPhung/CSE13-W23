@@ -23,6 +23,6 @@ double pi_bbp(void) {
     return total;
 }
 
-int bbp_terms(void) {
+int pi_bbp_terms(void) {
     return iterations;
 }

@@ -20,6 +20,6 @@ double sqrt_newton(double x) {
     return f * y; // Rescale back to the original range
 }
 
-int sqrt_newton_terms(void) {
+int sqrt_newton_iters(void) {
     return iterations;
 }

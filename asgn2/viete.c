@@ -21,6 +21,6 @@ double pi_viete(void) {
     return total;
 }
 
-int viete_terms(void) {
+int pi_viete_factors(void) {
     return iterations;
 }

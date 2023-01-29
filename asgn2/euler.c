@@ -26,6 +26,6 @@ double pi_euler(void) {
     return total;
 }
 
-int euler_terms(void) {
+int pi_euler_terms(void) {
     return iterations;
 }

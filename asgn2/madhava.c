@@ -45,6 +45,6 @@ double pi_madhava_n(int n) {
 }
 
 
-int madhava_terms(void) {
+int pi_madhava_terms(void) {
     return iterations;
 }

@@ -65,39 +65,92 @@ void newton_test(void){
 
 int main(int argc, char **argv) {
     int opt = 0;
-
-    while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
+    int is_e = 0;
+    int is_bbp = 0;
+    int is_madhava = 0;
+    int is_euler = 0;
+    int is_viete = 0;
+    int is_newton = 0;
+    int terms = 0;
+    while ((opt = getopt(argc, argv, OPTIONS)) != -1) {    
         switch (opt) {
         case 'a': 
-            e_test();
-            bbp_test();
-            madhava_test();
-            euler_test();
-            viete_test();
-            newton_test();
+            is_e = 1;
+            is_bbp = 1;
+            is_madhava = 1;
+            is_euler = 1;
+            is_viete = 1;
+            is_newton = 1;
             break;
         case 'e':
-            e_test();
+            is_e = 1;
+            printf("yes");
             break;
         case 'b':
-            bbp_test();
+            is_bbp = 1;
+            printf("yeah");
             break;
         case 'm':
-            madhava_test(); 
+            is_madhava = 1; 
             break;
         case 'r':
-            euler_test();  
+            is_euler = 1; 
             break;
         case 'v':
-            viete_test();  
+            is_viete = 1; 
             break;
         case 'n':
-            newton_test();
+            is_newton = 1;
+            break;
+        case 's':
+            terms = 1;
             break;
         default:
             usage(argv[0]);
             return EXIT_FAILURE;
         }
-        return 0;
     }
+
+    if(is_e > 0){
+        e_test();
+        if(terms > 0){
+            printf("e terms = %d\n", e_terms());
+        }
+    }
+    if(is_bbp > 0){
+        bbp_test();
+
+        if(terms > 0){
+            printf("pi_bbp terms = %d\n", pi_bbp_terms());
+        }
+    }
+    if(is_madhava > 0){
+        madhava_test();
+
+        if(terms > 0){
+            printf("pi_madhava terms = %d\n", pi_madhava_terms());
+        }
+    }
+    if(is_euler > 0){
+        euler_test();
+
+        if(terms > 0){
+            printf("pi_euler terms = %d\n", pi_euler_terms());
+        }
+    }
+    if(is_viete > 0){
+        viete_test();
+
+        if(terms > 0){
+            printf("pi_viete terms = %d\n", pi_viete_factors());
+        }
+    }
+    if(is_newton > 0){
+        newton_test();
+
+        if(terms > 0){
+            printf("newton terms = %d\n", sqrt_newton_iters());
+        }
+    }
+    return 0;
 }
