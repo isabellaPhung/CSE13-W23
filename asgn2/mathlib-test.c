@@ -61,8 +61,8 @@ void newton_test(void) {
     for (double i = 0; i < 10; i += 0.1) {
         sqrt_value = sqrt_newton(i);
         MI_sqrt = sqrt(i);
-        printf("sqrt_newton(%2.6f) = %6.15f, sqrt(%2.6f) = %6.15f Difference: %6.15f\n", i, sqrt_value, i,
-            MI_sqrt, MI_sqrt - sqrt_value);
+        printf("sqrt_newton(%2.6f) = %6.15f, sqrt(%2.6f) = %6.15f Difference: %6.15f\n", i,
+            sqrt_value, i, MI_sqrt, MI_sqrt - sqrt_value);
     }
 }
 

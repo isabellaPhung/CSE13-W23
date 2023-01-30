@@ -31,6 +31,7 @@ newton.o: newton.c mathlib.h
 
 clean:
 	rm -f *.o
+	rm mathlib-test
 
 format:
 	clang-format -i -style=file *.[ch]
