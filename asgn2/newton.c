@@ -1,5 +1,7 @@
+//Written by Darrel Long for CSE13S
+//Indicated by CSE13S instructed that
+//it would be acceptable to utilize this code.
 #include "mathlib.h"
-
 #include <assert.h>
 #include <stdio.h>
 
@@ -20,6 +22,8 @@ double sqrt_newton(double x) {
     return f * y; // Rescale back to the original range
 }
 
+//returns total number of terms required to get within EPSILON
+// of the square root
 int sqrt_newton_iters(void) {
     return iterations;
 }

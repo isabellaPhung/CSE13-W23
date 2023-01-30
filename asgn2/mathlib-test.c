@@ -1,5 +1,5 @@
+//Written by Isabella Phung for CSE13S
 #include "mathlib.h"
-
 #include <math.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -7,6 +7,7 @@
 
 #define OPTIONS "aebmrvnsh"
 
+//prints instructions for use
 void usage(char *exec) {
     fprintf(stderr,
         "SYNOPSYS\n"
@@ -72,6 +73,9 @@ int main(int argc, char **argv) {
     int is_viete = 0;
     int is_newton = 0;
     int terms = 0;
+    //first runs through all arguments first and
+    //determines which ones have been called
+    //before performing and outputing tests
     while ((opt = getopt(argc, argv, OPTIONS)) != -1) {    
         switch (opt) {
         case 'a': 
@@ -84,11 +88,9 @@ int main(int argc, char **argv) {
             break;
         case 'e':
             is_e = 1;
-            printf("yes");
             break;
         case 'b':
             is_bbp = 1;
-            printf("yeah");
             break;
         case 'm':
             is_madhava = 1; 
@@ -152,5 +154,7 @@ int main(int argc, char **argv) {
             printf("newton terms = %d\n", sqrt_newton_iters());
         }
     }
+
+
     return 0;
 }
