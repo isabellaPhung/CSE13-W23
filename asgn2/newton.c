@@ -2,6 +2,7 @@
 //Indicated by CSE13S instructed that
 //it would be acceptable to utilize this code.
 #include "mathlib.h"
+
 #include <assert.h>
 #include <stdio.h>
 

@@ -1,12 +1,13 @@
 //Written by Isabella Phung for CSE13S
 #include "mathlib.h"
+
 #include <stdio.h>
 
 //for terms function
 static int iterations = 0;
 
 //estimates pi via Biley-Borwein-Plouffe Formula
-//summation from 0 to n of 
+//summation from 0 to n of
 //16^(-k)*(k(120k+151)+47)/k(k(k(512k+1024)+712)+194)+15
 //Approximates until within 10^-14 of
 //the accepted value of pi from math.h library

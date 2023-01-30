@@ -1,5 +1,6 @@
 //Written by Isabella Phung for CSE13S
 #include "mathlib.h"
+
 #include <stdio.h>
 
 //for terms function
@@ -18,7 +19,7 @@ double e(void) {
     iterations = 1;
     denominator = 1;
     for (; factor > EPSILON; iterations++) {
-        denominator = denominator * iterations; 
+        denominator = denominator * iterations;
         factor = 1.0 / denominator;
         total += factor;
     }

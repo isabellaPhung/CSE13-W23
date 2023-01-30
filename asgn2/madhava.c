@@ -1,12 +1,13 @@
 //Written by Isabella Phung for CSE13S
 #include "mathlib.h"
+
 #include <stdio.h>
 
 //for terms function
 static int iterations = 0;
 
 //estimates pi via the Mahava Series
-//summation from 0 to n of 
+//summation from 0 to n of
 //((-3)^(-k))/(2k+1)
 //Approximates until within 10^-14 of
 //the accepted value of pi from math.h library
@@ -17,14 +18,14 @@ double pi_madhava(void) {
     double factor = 1;
 
     iterations++;
-    do{
+    do {
         numerator = numerator * (-1.0 / 3.0);
         denominator += 2;
-        factor = numerator / denominator; 
+        factor = numerator / denominator;
         total += factor;
         iterations++;
-    }while(absolute(factor) > EPSILON);
-    
+    } while (absolute(factor) > EPSILON);
+
     total = sqrt_newton(12) * total;
     return total;
 }
