@@ -1,37 +1,37 @@
 SHELL := /bin/sh
 CC = clang
 CFLAGS = -Wall -Wpedantic -Werror -Wextra
-OBJS = mathlib-test.o e.o madhava.o euler.o bbp.o viete.o newton.o
+OBJS = set.o shell.o sorting.o stats.o quick.o heap.o batcher.o
 
-all: mathlib-test
+all: sorting
 
-mathlib-test: $(OBJS) 
-	clang $(OBJS) -o mathlib-test -lm
+sorting: $(OBJS) 
+	$(CC) $(OBJS) -o sorting -lm
 
-mathlib-test.o: mathlib-test.c e.c madhava.c euler.c bbp.c viete.c newton.c mathlib.h
-	clang $(CFLAGS) -c mathlib-test.c -o mathlib-test.o	
+sorting.o: sorting.c set.c shell.c stats.c quick.c heap.c batcher.c gaps.h
+	$(CC) $(CFLAGS) -c sorting.c -o sorting.o	
 
-e.o: e.c mathlib.h
-	$(CC) $(CFLAGS) -c e.c -o e.o
+set.o: set.c
+	$(CC) $(CFLAGS) -c set.c -o set.o
 
-madhava.o: madhava.c mathlib.h
-	clang $(CFLAGS) -c madhava.c -o madhava.o
+shell.o: shell.c gaps.h
+	$(CC) $(CFLAGS) -c shell.c -o shell.o
 
-euler.o: euler.c mathlib.h
-	clang $(CFLAGS) -c euler.c -o euler.o
+stats.o: stats.c
+	$(CC) $(CFLAGS) -c stats.c -o stats.o
 
-bbp.o: bbp.c mathlib.h
-	clang $(CFLAGS) -c bbp.c -o bbp.o
+quick.o: quick.c 
+	$(CC) $(CFLAGS) -c quick.c -o quick.o
 
-viete.o: viete.c mathlib.h
-	clang $(CFLAGS) -c viete.c -o viete.o
+heap.o: heap.c
+	$(CC) $(CFLAGS) -c heap.c -o heap.o
 
-newton.o: newton.c mathlib.h
-	clang $(CFLAGS) -c newton.c -o newton.o
+batcher.o: batcher.c
+	$(CC) $(CFLAGS) -c batcher.c -o batcher.o
 
 clean:
 	rm -f *.o
-	rm mathlib-test
+	rm sorting
 
 format:
 	clang-format -i -style=file *.[ch]
