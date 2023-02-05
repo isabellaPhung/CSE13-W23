@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
+#include "shell.h"
+#include "batcher.h"
+#include "quick.h"
+#include "heap.h"
+#include "stats.h"
 
 #define OPTIONS "ahbsqr:n:p:H"
 
@@ -27,8 +34,37 @@ void usage(char *exec) {
         exec);
 }
 
+void printArray(uint32_t *arr, int printNum){
+    for(int i = 0; i < printNum; i++){
+        printf("%" PRIu32", ", arr[i]);  
+    }
+    printf("\n");
+}
+
+
 int main(int argc, char **argv) {
-    
+    uint32_t *array = calloc(10, sizeof(int));
+    uint32_t val;
+
+    uint32_t seed = time(0); /* Default (no options) is random based on time. */
+    seed = 1; //predetermined seed for testing
+    srandom(seed);
+    for(int i = 0; i < 10; i++){
+        val = (uint32_t)random() / 10000000;//values aren't larger than 10000
+        array[i] = val; 
+    }
+    printf("initial array: ");
+    printArray(array, 10);
+    Stats stats;
+    //shell_sort(&stats, array, 10);
+    //heap_sort(&stats, array, 10);
+    //quick_sort(&stats, array, 10);
+    batcher_sort(&stats, array, 10); //segmentation
+    printf("post sort: ");
+    printArray(array, 10);
+    free(array);
+
+    int opt = 0;  
     while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
         switch (opt) {
         case 'a': break;
@@ -42,6 +78,5 @@ int main(int argc, char **argv) {
         default: usage(argv[0]); return EXIT_FAILURE;
         }
     }
+    
 }
-
-
