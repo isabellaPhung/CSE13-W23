@@ -1,6 +1,6 @@
 SHELL := /bin/sh
 CC = clang
-CFLAGS = -Wall -Wpedantic -Werror -Wextra
+CFLAGS = -Wall -Wpedantic -Werror -Wextra 
 OBJS = set.o shell.o sorting.o stats.o quick.o heap.o batcher.o
 
 all: sorting
