@@ -1,0 +1,76 @@
+Insertion sort- easiest sort:
+- start with item, probably end
+- compare to element before it in list.
+- if in correct spot. Leave it and move to next element down
+- otherwise swap with item and check next one and keep going
+
+header files given, write c files
+make batcher, shell, heap, and quic sort
+set functions, tracks set of arguments
+sorting.c - main
+
+gaps.h.py generates gaps for shell function, generates a header file
+can be redirected into header file, redirect into gaps.h and it will spit everything into there.
+stats.h creates struct, keeps track of statistics of. stats.c is handled already
+ -> from struct change some var in it
+
+set.h
+set is just an int, but can be defined as a type using typedef
+bv.64 is an example, example of bit function, rusage is an example. 
+
+should report amount of time it takes to run with time argument?
+
+shell:
+basically has a list of "gaps"
+these gaps refer to the gap in indexes, not the gap in actual value.
+aka, the gaps list may start at 10000 with an array of 5 elements, but you cut down on the gaps list until you only have any gap values less than 5.
+Suppose you have a list of length 8 with a gap value of 4. you find pairs of 4 index distance in the list and swap if needed.
+for gap in gaps:#runs through list of gaps in gaps.h file
+for i in range(gap, len(arr)) #creates range from gap value to the length of the array, so no gap values greater than the length of the array are used.
+j=i values inbetween gap and len(arr)
+temp = arr[i] #actual value
+while j >= gap and temp is less than arr[len-gap] #j>=gap prevents seg fault from going too far. temp less than arr[len-gap] checks value gap distance away. if in correct order, skip, if in wrong order, put gap distance away value in current spot. continues down until can't go any further
+
+heap sort:
+can represent the heap as an array. unsorted array must get put into heap form. then heap sort will spit out an array by traversing the heap.
+max heap: parent always larger than child
+for any index k, index of left child is 2k, index of right child is 2k+1. parent node of any node k is k/2
+max child: accepts list, first and last elements. returns bigger child. 
+when placing a value, if bigger child, replace node, if smaller value, add as a a leaf
+fix heap: calls max child and assigns it to var. 
+build heap: takes middle number, sets it as parent, then calls fix heap
+heap sort: calls build heap, then fix heap
+#once you have everything in a heap, you know the top value is the biggest value. In order to get a sorted list, drop that element to the bottom and push the smallest value to the top. now have fix heap handle the rest, BUT only input 1 through n-1 elements now that you've put the biggest value at the back. continue while segmenting off the sorted big values. The nature of the max heap is that the largest value goes to the top.
+once you have everything in a heap, you know the top value is the biggest value. In order to get a sorted list, drop that element to the bottom and push the smallest value to the top. now have fix heap handle the rest, BUT only input 1 through n-1 elements now that you've put the biggest value at the back. continue while segmenting off the sorted big values. The nature of the max heap is that the largest value goes to the top.
+
+maybe try to predict what will be faster in design doc?
+lots of cheaters get caught on this. can look at pseudo code on wikipedia
+
+quicksort:
+partitions array around a pivot. elements less than pivot go to left, greater than pivot go to right. then left and right sections get fed back into quick sort.
+worse case: sorted array. does a lot of comparisons to double check. pivot can be any element, but for example, last number. compares to remaining elements. compares element next to it and the one at the start of the element, swaps those two elements if needed, compares values to itself, swaps if needed. keeps looking to the left of it. until left side is less than it.
+then splits up left and right side and feeds those back into itself
+with pivot go down list and move any values smaller below the pivot, any values higher, above the pivot.
+
+batcher sort
+uses logic to perform sort
+requires powers of 2
+optimized for gpus
+can be done sequentially
+bit shift operations happen bc its typically done in 2^k rounds
+assigning arguments to wires, then calls comparator, if wire greater than the other when it shouldnt, swaps them
+ex: 16 elements, 8 sorts, 4 sorts, 2 sorts, then 1 sorts, merging the rounds. sort of a radix sort. 
+
+
+set.h is used for inputs. needs to look at arguments and pick the appropriate sort? need to write set.c. 
+calloc. initalizes memory to 0. specify size. anyhting alocated must be freed with free function.
+const uint length = 100
+uint32 *array = (uint32t*)calloc(length,sizeof(uint32)); #size of uint32t retunrs 4. cast as integer pointer. 
+to print uint, use PRIu32
+free()
+be sure to free, cause memory leaks otherwise.
+valgrind- install it, valgrind [./program], checks for memory leaks
+will say something like, 2 alloc, but only 1 free
+if good, says no leaks possible
+
+segmentation fault error - means you're going beyond array or accessing memory you shouldnt
