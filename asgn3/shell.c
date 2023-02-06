@@ -1,6 +1,7 @@
 //Written by Isabella Phung for CSE13S
 #include "gaps.h"
 #include "stats.h"
+
 #include <stdint.h>
 #include <stdio.h>
 
