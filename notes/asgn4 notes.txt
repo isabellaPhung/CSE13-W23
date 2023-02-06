@@ -1,1 +1,50 @@
 asgn 4 notes:
+"Turing Complete" - Game of Life can run any program that is written for a computer
+Theoretical version:
+infinite 2D grid that represent universe, each cell can be either dead or alive.
+Progresses through generations
+1. live cell w/ 2-3 neighbors survives
+2. dead cell w/ 3 neighbors becomes live
+3. all other cells die
+
+will be implementing ADT(abstract data type).
+given universe.h
+typedef struct universe. universe.c defines concrete implementation
+universe has rows, cols, bool ** grid, bool toroidal. each cell will be represented w/ bool
+
+universe.c:
+universe constructor:
+if toroidal = true, universe is toroidal. function returns pointer to universe. alocate column of pointers to rows, then allocate rows
+
+universe destructor: free rows, free columns, free pointer, use valgrind to check for memory leaks
+
+accessor function:
+cannot use -> bc typedef struct is opaque data structure.
+
+uv_live_cell: changes to live cell
+uv_dead_cell: changes to dead cell
+uv_get_cell: returns state of cell
+uv_populate: reads in a file, needs stdio.h, fscanf() to read file, possible for function to fail, game should print some error message. file has folloiwng format:
+[rows] [coluns]
+[row] [column] #for live cell
+...
+
+uv_census:
+toroidal means the universe is a toroid. function returns number of live neighbors adjacent to given coordinate. if universe is nontoroidal then only consider valid neighbors, if universe is toroidal then neighbors wrap around to otherside. 
+if toroidal this means right edge G(i, n-1) connected to G(i, 0)and G(n-1,i), bottom edge, is connected to G(0,i).
+
+uv_print:
+prints universe to outfile. live cell = o, dead cell = . cannot print torus so always print flat universe.
+
+life.c: main file.
+strategy: create two universes rather than just one, these universes can reference each other back and forth so one has the old state and the other has the new state. then to display just switch the needed pointers.
+
+command-line options:
+-t: universe is toroidal
+-s: silence ncurses
+-n generations. default 100
+-i input. specify input file to populate universe. default is stdin.
+-o output. specify output file to print final state to. default is stdout.
+
+ncurses is used for text-based user interfaces. use to display state of universe after each generation.
+example in resources can be compiled with clang -o example example.c -lncurses
