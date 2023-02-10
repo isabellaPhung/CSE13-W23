@@ -1,5 +1,5 @@
 SHELL := /bin/sh
-CC = clang
+CC = clang-15
 CFLAGS = -Wall -Wpedantic -Werror -Wextra 
 OBJS = universe.o 
 
@@ -8,7 +8,7 @@ all: life
 life: $(OBJS) 
 	$(CC) $(OBJS) -o life -lm
 
-life.o: life.c unverse.c
+life.o: life.c universe.c
 	$(CC) $(CFLAGS) -c life.c -o life
 
 universe.o: universe.c universe.h
@@ -19,4 +19,4 @@ clean:
 	rm life
 
 format:
-	clang-format -i -style=file *.[ch]
+	clang-format-15 -i -style=file *.[ch]
