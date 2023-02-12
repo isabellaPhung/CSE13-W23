@@ -1,18 +1,20 @@
 SHELL := /bin/sh
 CC = clang-15
-CFLAGS = -Wall -Wpedantic -Werror -Wextra 
-OBJS = universe.o 
+GCC = gcc
+GFLAGS = -g -gdwarf-4 -ggdb3
+CFLAGS = -Wall -Wpedantic -Werror -Wextra
+OBJS = life.o universe.o
 
 all: life
 
-life: $(OBJS) 
-	$(CC) $(OBJS) -o life -lm
+life: $(OBJS)
+	$(GCC) $(GFLAGS) $(OBJS) -lncurses -lm -o life
 
-life.o: life.c universe.c
-	$(CC) $(CFLAGS) -c life.c -o life
+life.o: life.c universe.c universe.h
+	$(GCC) $(GFLAGS) -c life.c -o life.o
 
 universe.o: universe.c universe.h
-	$(CC) $(CFLAGS) -c universe.c -o universe.o
+	$(GCC) $(GFLAGS) -c universe.c -o universe.o
 
 clean:
 	rm -f *.o

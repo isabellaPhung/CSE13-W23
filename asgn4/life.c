@@ -5,6 +5,9 @@
 #include <inttypes.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <stdlib.h>
+#include "universe.h"
+#include <unistd.h>
 
 #define OPTIONS "tsn:i:o:h"
 
@@ -29,6 +32,22 @@ void usage(char *exec) {
         exec);
 }
 
+void ncursorPrint(Universe *u){
+    erase(); 
+    
+    uint32_t width = uv_cols(u);
+    uint32_t height = uv_rows(u);
+    for(uint32_t row = 0; row < height; row ++){
+        for(uint32_t col = 0; col < width; col++){
+            if(uv_get_cell(u, row, col)){
+                mvprintw(row, col, "o");
+            }
+        }
+    }
+    refresh();
+    usleep(50000);
+}
+
 int main(int argc, char **argv) {
     //first runs through all arguments first and
     //determines which ones have been called
@@ -40,7 +59,8 @@ int main(int argc, char **argv) {
     uint32_t height = 0;
     FILE *input = stdin;
     FILE *output = stdout;
-    char filename[MAX_FILENAME_LENGTH]
+    int opt = 0;
+    int index = 0;
     while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
         switch (opt) {
         case 't':
@@ -53,40 +73,59 @@ int main(int argc, char **argv) {
             generations = (uint32_t) strtoul(optarg, NULL, 10);
             break;
         case 'i':
-            filename = [];
-            scanf(%s, filename);
-            input = fopen(filename, "r"); 
+            input = fopen(argv[index*2+2], "r"); 
             break;
         case 'o': 
-            filename = [];
-            scanf(%s, filename);
-            ouput = fopen(filename, "r"); 
+            output = fopen(argv[index*2+2], "w"); 
             break;
         default: usage(argv[0]); return EXIT_FAILURE;
         }
+        index++;
     }
-    
-    scanf(input, "%" SCNd32, width); 
-    scanf(input, "%" SCNd32, height);
-    Universe *universe = uv_create(width, height, toroidal);
-    uv_populate(universe, input);
+    fscanf(input, "%" SCNd32, &width); 
+    fscanf(input, "%" SCNd32, &height);
+    Universe *universeA = uv_create(width, height, toroidal);
+    bool isPopulated = false;
+    isPopulated = uv_populate(universeA, input);
+    if(!isPopulated){
+        printf("Malformed input.\n");
+        return 0;
+    }
+    fclose(input);
+    Universe *universeB = uv_create(width, height, toroidal); 
+    if(ncursor){
+        initscr();
+        curs_set(FALSE);
+    }
+        
     uint32_t liveCount = 0;
     for(uint32_t i = 0; i<generations; i++){
         for(uint32_t j = 0; j<width; j++){
             for(uint32_t k = 0; k<height; k++){
-                liveCount = uv_census(universe, j, k);
-                if(uv_get_cell(universe, j, k) && (liveCount == 2 || liveCount == 3)){
-                    uv_live_cell(universe, j, k);                
-                }else if(!uv_get_cell(universe, j, k && liveCount == 3)){
-                    uv_live_cell(universe, j, k);
+                liveCount = uv_census(universeA, j, k);
+                if(uv_get_cell(universeA, j, k) && (liveCount == 2 || liveCount == 3)){
+                    uv_live_cell(universeB, j, k); 
+                }else if(!uv_get_cell(universeA, j, k) && liveCount == 3){
+                    uv_live_cell(universeB, j, k);
                 }else{
-                    uv_dead_cell(universe, j, k);
+                    uv_dead_cell(universeB, j, k);
                 }
             }
         }
+        Universe *t = universeA;
+        universeA = universeB;
+        universeB = t;
+        if(ncursor){
+            ncursorPrint(universeA); 
+        }
+        
     }
-    uv_print(universe, output);
-    uv_delete(universe);
+    if(ncursor){
+        endwin();
+    }
+    uv_print(universeA, output);
+    uv_delete(universeA);
+    uv_delete(universeB);
 
-    
-    
+    return 0;
+} 
