@@ -66,17 +66,33 @@ int main(int argc, char **argv) {
     char *filename;
     while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
         switch (opt) {
-        case 't': toroidal = true; index++; break; //toroidal universe option
-        case 's': ncursor = false; index++; break; //disable ncurspr
-        case 'n': generations = (uint32_t) strtoul(optarg, NULL, 10); index+=2; break; //generation number option
-        case 'i': input = fopen(argv[index+2], "r"); filename = argv[index+2]; index+=2; break; //input file
-        case 'o': output = fopen(argv[index+2], "w"); index+=2; break; //output file
+        case 't':
+            toroidal = true;
+            index++;
+            break; //toroidal universe option
+        case 's':
+            ncursor = false;
+            index++;
+            break; //disable ncurspr
+        case 'n':
+            generations = (uint32_t) strtoul(optarg, NULL, 10);
+            index += 2;
+            break; //generation number option
+        case 'i':
+            input = fopen(argv[index + 2], "r");
+            filename = argv[index + 2];
+            index += 2;
+            break; //input file
+        case 'o':
+            output = fopen(argv[index + 2], "w");
+            index += 2;
+            break; //output file
         default: usage(argv[0]); return EXIT_FAILURE;
         }
     }
-    
+
     //if input file doesn't exist
-    if(input == NULL){
+    if (input == NULL) {
         printf("Error opening %s\n", filename);
         return 0;
     }
@@ -86,7 +102,7 @@ int main(int argc, char **argv) {
     bool isPopulated = false;
     isPopulated = uv_populate(universeA, input);
     if (!isPopulated) { //prints Malformed input if recieves negative, non ints,
-    // or more live cells than the universe can fit.
+        // or more live cells than the universe can fit.
         printf("Malformed input.\n");
         return 0;
     }

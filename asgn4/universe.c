@@ -84,11 +84,10 @@ bool uv_populate(Universe *u, FILE *infile) {
     uint32_t totalCells = (u->rows) * (u->cols);
     int argNum = 0;
 
-     while ((argNum = fscanf(infile, "%" SCNd32, &x) != EOF)) {
+    while ((argNum = fscanf(infile, "%" SCNd32, &x) != EOF)) {
         //if value exceeds universe or more cells inputted than can fit in universe, return false
-        if ((x > (u->rows) - 1) || (y > (u->cols) - 1) || index > totalCells
-            || argNum == 0) {
-                   return false;
+        if ((x > (u->rows) - 1) || (y > (u->cols) - 1) || index > totalCells || argNum == 0) {
+            return false;
         }
         fscanf(infile, "%" SCNd32, &y);
         uv_live_cell(u, x, y);
