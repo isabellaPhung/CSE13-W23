@@ -48,3 +48,49 @@ command-line options:
 
 ncurses is used for text-based user interfaces. use to display state of universe after each generation.
 example in resources can be compiled with clang -o example example.c -lncurses
+
+because the toroidal world is infinite, will have to use mod in order to find the cell if the user puts in a value that exceeds the flat world.
+if small toroidial world, and value is small/ inputs value that exceeds given height and width, it outputs malformed input.
+neighbors include diagonals
+can use -> but only in the getters
+
+rows, then columns
+ncursors has memory leaks, so if you're testing wtih valgrind, try without ncursors
+
+mention strategy of two universes in design doc
+
+reading in a file:
+FILE type data type, pointer name
+if provided file, put in input name
+otherwise it will be input = fopen(stdin, "r")
+r=read mode
+rw for readwrite
+if its == to null then it doesn't exist.
+fscanf(inp) returns number of arguments found
+SCNu32 = scan 32
+
+use fprintf rather than fscanf for output. use fopen if file doesn't exist, check stdio library for creating opening and reading files.
+
+check if there's excess stuff like garbage at the end of the input file. another thing is erange, make sure values are unsigned 32bit int. also handle files that are too big with enomem
+
+input file should have at least have 2 lines
+fscanf will continually go to next lines
+
+gdb/gnome debugger - helps debug
+-g -gdwarf-4 -ggdb3 you can add these flags in makefile
+gdb -args [filename] [arguments] to run with arguments
+puts you in special gdb mode
+type in r or run to run file
+you can ask gdb to print a variable, and it will print the values at crash
+
+you can add break points with
+b 10 # breakpoint at line 10, so runs until breakpoint
+then do n, to step through next line
+backtrace or bt, so it will check core file
+
+scan-build/scan-view
+
+edge cases:
+if no points, still runs
+
+

@@ -1,0 +1,8 @@
+asgn 5: cryptography
+SSL
+SSH - secure shell, protected by ssl
+public key
+symmetric key crytography
+
+RSA - earliest
+Schmidt-Samao algorithm
