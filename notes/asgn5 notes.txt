@@ -1,0 +1,112 @@
+asgn 5: cryptography
+SSL
+SSH - secure shell, protected by ssl
+asymmetric cryptography/public key- pairs of keys, public - known, private - known only by owner. One way functions used to generate key pairs. PersonA can encrypt using PersonB's public key, but said encrypted message can only be decrypted using private key. 
+This establishes a secure connection.
+A server can then encrypt a symmetric key to send to the recipient over an insecure channel. Once they both have the symmetric key, they can establish communication via symmaetric keys.Symmetric is faster, so things are safe and fast now.
+symmetric key crytography- same key for encryption and decryption. 
+RSA - earliest
+Schmidt-Samao algorithm
+Cocks algorithm:
+A:
+choose two primes p and q, p not divisor of q-1, q not divisor of p-1.
+send n = p*q, to B
+B:
+Has message consisiting of c1..cr where 0<cr<n
+encodes ad di where di = cr mod n.
+A: 
+Computes Euclid's Alogrithm multiplicative inverse of p, p', using euclid's algorithm. and q' such that q' is the multiplicative inverse of q.
+Decodes cr from di using the multiplicative inverses.
+One of the ways to crack this is by factoring n to find p or q but if n is a big number then this is extremely difficult. There is an assumed difficulty of this since there's no real proof of this assumption.
+if they were to factor n, then one could decrypt all ciphers using that key. Theoretically a quantum computer might be used for this. but there are energy limitations still.
+breaking RSA would be theoretically be easer than doing cocks algorithm bc rsa is not reliant on factoring, but it can still be broken with a large enough value.
+however, Schmidt-Samoa tweaks RSA so that it does use factorization.
+SS algorithm:
+public key is n = p*q where p and q are random large primes.
+private key has private exponent d and some value lcm(p-1, q-1). p and q are discarded after d is computed. 
+pick another p and q, random primes where p is not a multiple of p-1 and q is not a multiple of p-1. p-1 and q-1 should have large prime factors. we then calculate n = p^2(q), which can be public. Calculate lcm(p-1, q-1)and d, the multiplicative inverse of n. We can easily calculate d bc we know p and q, but someone else only has n, assuming we've kept p and q properly safe. With p, q, and d, we have our private key. 
+then define functions e = m^n and D = c^d. show that for all in m is a set of {0,...,pq-1} and that D(e) = m.
+our message space is {0,...,pq-1}, which means that messages have to be within this space otherwise they will not be decrypted correctly. How do we convey this publicly for people who want to communicate with us? We can't publish pq-1, that would give away our private p and q.
+instead we limit our message space to {0, sqrt(n)-1} rather than use our full pq-1 message space.
+coprime/relatively prime means that two numbers don't share any factors besides 1, ex: 21 and 22 are coprime, but 22 and 24 are not coprime.
+Euler totient function - gives # of pos ints that = n or are relatively prime to n. totient function (p) = p-1.
+you can sign a document with your private key and someone can use your public key to check and ensure that it was written by you
+what can be encrypted with N can be decrypted with d
+c = cipher text
+
+randstateinit - intializes a big enough random number
+GMP = gnu multiprecision, arbritrary precision
+randstate.c:
+/dev/random generates random stuff from boot.
+just implement randinit
+
+pkg-config -libs ncurses for example, shows what flags you need
+so just do pkg-libs gmp and you will include it in ur makefile, makes things more portable.
+include gmp.h after stdio.h
+when you do clang-format it will move gmp before stdio, you can disable it in .clang-flormat, so sortIncludes: false
+
+just use gmp ints, which is mpz_t
+check integer functions
+
+numtheory.c- get this working this week.
+test-prime-ss.c, write in c then port to gmp, pseudocode provided
+most of the functions don't return, we call the functions to modify the gmp objects.Some of the functions already given.
+isprime may give false positive, run multiple times to increase accuracy.
+triple equals = modular equivalence ex 1 triple eq 11 mod 5
+
+many kinds of division, c div rounds to ceiling, f div rounds to flor, r div returns remainder.
+need to use compare function to compare values
+%Zd to print value
+dh.c is also cryptography, use it as an example
+
+ex: ask for 256 bit key
+p 70 bits, q 119, bc p^2 is 117 bits, n will be 257 bits, not exactly 256, default should be 256
+
+ecryption: file needs to be breoken down into blocks and encrypted, we're using modulo n with our key, this way we can encrypt big files with a smaller key rather than requiring a big key. calculate block size, the formula is given.
+uint_t is a byte and it's a char. our chars are 8 bit ints. integer import and export, check gmp's documentation about this. 
+
+file permissions
+ls -al, shows permissions
+remember chmod +x for bash? it changes permissions when you give it arguments. you can use fchmod to change the file permissions. 4, read, 2, write, 1 execute, add up numbers. you want 0600 bc it means we can read and write, but not execute. user-group-everyone.
+
+we're supposed to use miller rabin for primes
+
+deliverables:
+keygen.c - generates key, produces ss public and private key.
+parse commmands w/ get opt, open public and private key files using fopen, use fchmod and fileno to check that file permissions are set to 0600 so there's only read and write permissions for user and not anyone else.
+init random state
+use ss_make_pub and ss_make_priv to make keys
+use getenv to get user's name.
+write key to files
+if verbose output enabled, print username, p, q, n, d, and pq
+
+encrypt.c - encrypts using public key
+parse command line options
+open PUBLIC key file using fopen
+read public key
+verbose output: username, public key n
+encrypt given file using ss_encrypt_file().
+
+decrypt.c - decrypts using private key.
+parse command line options
+open PRIVATE key using fopen()
+verbose output: print pq and d
+decrypt file using ss_decrypt_file()
+all three of these will have mains.
+numtheory.c - number theory functions
+numtheory.h
+ss.c-implementation of ss library
+ss.h
+ss_make_pub
+
+Makefile - make decrypt, make encrypt, make keygen
+
+should write everything in c, then translate over to gnu multiprecision
+have to use randstate-init to generate random value
+use void randstate clear afterwards
+
+HAVE TO HCEKC W/ SCANBUILD
+scan-build flags in spec
+/usr/lib/llvm-15/bin/clang
+
+.gitlab.ci file, shows pipeline, you can delete /dev/null it will send the errors to your computer
