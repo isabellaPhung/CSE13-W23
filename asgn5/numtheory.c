@@ -19,6 +19,14 @@ void gcd(mpz_t g, mpz_t a, mpz_t b){
     return;
 }
 
+void lcm(mpz_t l, mpz_t a, mpz_t b){
+    mpz_t multiple, denominator;
+    mpz_init(multiple, denominator, 0);
+    mpz_mul(multiple, a, b);
+    gcd(denominator, a, b);
+    mpz_fdiv_q(l, multiple, denominator); 
+}
+
 void mod_inverse(mpz_t o, mpz_t a, mpz_t n){
     mpz_t r, rprime, t, tprime, q, temp1, temp2;
     mpz_init_set(r, n);
