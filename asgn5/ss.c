@@ -1,6 +1,7 @@
 #include "ss.h"
 #include "numtheory.h"
 #include <stdlib.h>
+#include <time.h>
 
 //
 // Generates the components for a new SS key.
@@ -18,6 +19,8 @@
 void ss_make_pub(mpz_t p, mpz_t q, mpz_t n, uint64_t nbits, uint64_t iters){
     uint64_t pbits, qbits;
     uint64_t min, max;
+    uint64_t seed = (uint64_t)time(NULL);
+    srandom(seed);
     min = nbits/5;
     max = (2*nbits)/5;
     max = max-min;
@@ -26,21 +29,25 @@ void ss_make_pub(mpz_t p, mpz_t q, mpz_t n, uint64_t nbits, uint64_t iters){
     //then add munimum to that random number
     pbits = (uint64_t) random() % max;
     pbits = pbits + min;
-    qbits = pbits * 2;
+    qbits = nbits - (pbits * 2);
     
     //need to check that p is not a factor of q-1
     //and that q is not a factor of p-1
     mpz_t temp1, temp2, temp3, temp4;
     mpz_inits(temp1, temp2, temp3, temp4, NULL);
     do{
+        make_prime(p, pbits, iters);
         make_prime(q, qbits, iters);
+        //mpz_out_str(NULL, 10, q);
+        //printf("\n");
         mpz_sub_ui(temp1, q, 1);
         mpz_sub_ui(temp2, p, 1);
-        mpz_mod(temp3, p, temp1);
-        mpz_mod(temp4, p, temp2);
+        mpz_mod(temp3, temp1, p);
+        mpz_mod(temp4, temp2, q);
 
     }while(mpz_cmp(p, q)==0 || mpz_sgn(temp3)==0 || mpz_sgn(temp4)==0);
 
+    //mpz_out_str(NULL, 10, p);
     mpz_mul(n, p, p);
     mpz_mul(n, n, q); // n = p*p*q
 }
@@ -87,9 +94,13 @@ void ss_make_priv(mpz_t d, mpz_t pq, const mpz_t p, const mpz_t q){
 //  pbfile: open and writable file stream
 //
 void ss_write_pub(const mpz_t n, const char username[], FILE *pbfile){
+    mpz_out_str(NULL, 10, n);
+    printf("\n");
+    mpz_out_str(NULL, 16, n);
+    printf("\n");
     mpz_out_str(pbfile, 16, n);
     fprintf(pbfile, "\n");
-    fprintf(pbfile, username);
+    fprintf(pbfile, "%s", username);
     fprintf(pbfile, "\n");
 }
 
@@ -185,7 +196,6 @@ void ss_encrypt_file(FILE *infile, FILE *outfile, const mpz_t n){
     mpz_t m, c;
     mpz_inits(m, c, NULL);
     uint64_t j = intBlockSize - 1;
-    int argNum = 0;
     mpz_t x;
     mpz_init(x);
     size_t bytes = 0;
@@ -238,8 +248,7 @@ void ss_decrypt_file(FILE *infile, FILE *outfile, const mpz_t d, const mpz_t pq)
     uint8_t *nextAddress = block + sizeof(char);
     mpz_t m, c;
     mpz_inits(m, c, NULL);
-    uint64_t j = intBlockSize - 1;
-    int argNum = 0;
+    //uint64_t j = intBlockSize - 1;
     mpz_t x;
     mpz_init(x);
     size_t bytes = 0;

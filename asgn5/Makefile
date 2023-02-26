@@ -1,38 +1,34 @@
 SHELL := /bin/sh
 CC = clang-15
-CFLAGS = -Wall -Wpedantic -Werror -Wextra $(pkg-config -libs gmp)
-OBJS = numtheory.o ss(.)o
+CFLAGS = -Wall -Wpedantic -Werror -Wextra -g -gdwarf-4 -ggdb3 
+GMP = $(shell pkg-config --libs gmp)
+
+OBJS = numtheory.o ss.o randstate.o
 
 all: keygen decryptor encryptor
 
-decrypt: decryptor
-
-encrypt: encryptor
-
-keygen: keygen
-
 keygen: $(OBJS) keygen.o 
-	$(CC) $(OBJS) -o keygen -lm
+	$(CC) $(CFLAGS) $(OBJS) keygen.c -o keygen -lm $(GMP)
 
-keygen.o: keygen.c ss.c numtheory.c
+keygen.o: keygen.c ss.c numtheory.c randstate.c numtheory.h ss.h
 	$(CC) $(CFLAGS) -c keygen.c -o keygen.o	
 
 encryptor: $(OBJS) encryptor.o 
-	$(CC) $(OBJS) -o encryptor -lm
+	$(CC) $(CFLAGS) $(OBJS) encryptor.c -o encryptor -lm $(GMP)
 
-encryptor.o: encryptor.c ss.c numtheory.c
+encryptor.o: encryptor.c ss.c numtheory.c randstate.c numtheory.h ss.h
 	$(CC) $(CFLAGS) -c encryptor.c -o encryptor.o	
 
 decryptor: $(OBJS) decryptor.o 
-	$(CC) $(OBJS) -o decryptor -lm
+	$(CC) $(CFLAGS) $(OBJS) decryptor.c -o decryptor -lm $(GMP)
 
-decryptor.o: decryptor.c ss.c numtheory.c
+decryptor.o: decryptor.c ss.c numtheory.c randstate.c numtheory.h ss.h
 	$(CC) $(CFLAGS) -c decryptor.c -o decryptor.o	
 
-numtheory.o: numtheory.c
+numtheory.o: numtheory.c numtheory.h
 	$(CC) $(CFLAGS) -c numtheory.c -o numtheory.o
 
-ss.o: ss.c
+ss.o: ss.c ss.h
 	$(CC) $(CFLAGS) -c ss.c -o ss.o
 
 clean:

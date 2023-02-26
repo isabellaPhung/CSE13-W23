@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/stat.h>
 
 #define OPTIONS "b:i:n:d:s:vh"
 //gmp_randstate_t state;
@@ -25,7 +26,7 @@ void usage(char *exec) {
         "   %s [b:i:n:d:s:vh]\n"
         "\n"
         "OPTIONS\n"
-        "   -b bits        Minimum bits for public key n.\n"
+        "   -b bits        Minimum bits for public key n. Default: 256\n"
         "   -i iterations  Iterations for Miller-Rabin Primaility testing.\n" 
                             "Greater the number, higher likelihood the value will be prime. Default: 50.\n"
         "   -n publicKey   File name for public key. Default: ss.pub.\n"
@@ -44,12 +45,12 @@ int main(int argc, char **argv) {
     FILE *privkey;
     bool verbose = false;
     int opt = 0;
-    uint64_t bits = 0;
-    uint64_t iterations = 0;
-    uint64_t seed = time();
+    uint64_t bits = 256;
+    uint64_t iterations = 50;
+    uint64_t seed = (uint64_t)time(NULL);
     int index = 0; //index used for keeping track of arguments
     char *pubkeyfilename = "ss.pub";
-    char *privkeyfilename = "ss.priv"
+    char *privkeyfilename = "ss.priv";
     while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
         switch (opt) {
         case 'b':
@@ -69,7 +70,7 @@ int main(int argc, char **argv) {
             index += 2;
             break; //private key file
         case 's':
-            seed = (uint64_t) strtoul(oparg, NULL, 10);
+            seed = (uint64_t) strtoul(optarg, NULL, 10);
             index++;
             break; //seed
 
@@ -81,21 +82,21 @@ int main(int argc, char **argv) {
         default: usage(argv[0]); return EXIT_FAILURE;
         }
     }
-    pubkey = fopen(pubkeyfilename, "r");// read public key
+    pubkey = fopen(pubkeyfilename, "w");// write public key
     //if pub key file doesn't exist
     if (pubkey == NULL) {
         printf("Error opening %s\n", pubkeyfilename);
         return 0;
     }
     
-    privkey = fopen(privkeyfilename, "r");// read priv key
+    privkey = fopen(privkeyfilename, "w");// write priv key
     //if priv key file doesn't exist
     if (privkey == NULL) {
         printf("Error opening %s\n", privkeyfilename);
         return 0;
     }
-
-    fchmod(privkey, 0600);
+    int filenum = fileno(privkey);
+    fchmod(0600, filenum);
 
     randstate_init(seed);
 
@@ -106,22 +107,22 @@ int main(int argc, char **argv) {
     mpz_inits(d, pq, NULL);
     ss_make_priv(d, pq, p, q);
     
-    char user[] = getenv("USER");
+    char *user = getenv("USER");
     ss_write_pub(n, user, pubkey);
     ss_write_priv(pq, d, privkey);
     if(verbose){
-        printf("user = %s", user);
-        gmp_printf("p  (%Zd) = %Zd\n", gmp_sizeinbase(p, 2), p);
-        gmp_printf("q  (%Zd) = %Zd\n", gmp_sizeinbase(q, 2), q);
-        gmp_printf("n  (%Zd) = %Zd\n", gmp_sizeinbase(n, 2), n);
-        gmp_printf("pq (%Zd) = %Zd\n", gmp_sizeinbase(pq, 2), pq);
-        gmp_printf("d  (%Zd) = %Zd\n", gmp_sizeinbase(d, 2), d);
+        printf("user = %s\n", user);
+        gmp_printf("p  (%d) = %Zd\n", mpz_sizeinbase(p, 2), p);
+        gmp_printf("q  (%d) = %Zd\n", mpz_sizeinbase(q, 2), q);
+        gmp_printf("n  (%d) = %Zd\n", mpz_sizeinbase(n, 2), n);
+        gmp_printf("pq (%d) = %Zd\n", mpz_sizeinbase(pq, 2), pq);
+        gmp_printf("d  (%d) = %Zd\n", mpz_sizeinbase(d, 2), d);
     }
 
-    pubkey.close();
-    privkey.close();
+    fclose(pubkey);
+    fclose(privkey);
     randstate_clear();
-    mpz_clears(p, q, n, d, pq);
+    mpz_clears(p, q, n, d, pq, NULL);
     //TODO get rid of mpz integers
 
     return 0;

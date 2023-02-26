@@ -82,7 +82,9 @@ int main(int argc, char **argv) {
     ss_read_priv(pq, d, privkey);// get priv key pq and d
     //maybe check that n has a value
     ss_decrypt_file(input, output, d, pq);
-    fclose(pubkey, input, output);
+    fclose(privkey);
+    fclose(input);
+    fclose(output);
     if(verbose){
         gmp_printf("pq: %Zd\n", pq);
         gmp_printf("d: %Zd\n", d);
