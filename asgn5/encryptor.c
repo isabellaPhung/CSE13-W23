@@ -79,9 +79,7 @@ int main(int argc, char **argv) {
 
     mpz_t n;
     char username[LOGIN_NAME_MAX];
-    mpz_init(n, 0);output1 = open("output_keys.txt", "w")
-for key, title in keysortdict:
-    output1.write(f"{key}: {title}")
+    mpz_init(n);
     ss_read_pub(n, char username[], pubkey);// get pub key n
     //maybe check that n has a value
     ss_encrypt_file(input, output, n);

@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     }
 
     mpz_t pq, d;
-    mpz_inits(pq, d, 0);
+    mpz_inits(pq, d, NULL);
     ss_read_priv(pq, d, privkey);// get priv key pq and d
     //maybe check that n has a value
     ss_decrypt_file(input, output, d, pq);

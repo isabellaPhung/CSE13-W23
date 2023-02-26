@@ -1,6 +1,7 @@
 //Written by Isabella Phung for CSE13S
 #include "ss.h"
 #include "numtheory.h"
+#include "randstate.h" 
 
 #include <inttypes.h>
 #include <stdint.h>
@@ -9,8 +10,10 @@
 #include <gmp.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 #define OPTIONS "b:i:n:d:s:vh"
+//gmp_randstate_t state;
 
 //prints instructions for use
 void usage(char *exec) {
@@ -97,10 +100,10 @@ int main(int argc, char **argv) {
     randstate_init(seed);
 
     mpz_t p, q, n;
-    mpz_inits(p, q, n, 0);
+    mpz_inits(p, q, n, NULL);
     ss_make_pub(p, q, n, bits, iterations);
     mpz_t d, pq;
-    mpz_inits(d, pq, 0);
+    mpz_inits(d, pq, NULL);
     ss_make_priv(d, pq, p, q);
     
     char user[] = getenv("USER");

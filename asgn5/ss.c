@@ -1,4 +1,6 @@
 #include "ss.h"
+#include "numtheory.h"
+#include <stdlib.h>
 
 //
 // Generates the components for a new SS key.
@@ -28,14 +30,27 @@ void ss_make_pub(mpz_t p, mpz_t q, mpz_t n, uint64_t nbits, uint64_t iters){
     
     //need to check that p is not a factor of q-1
     //and that q is not a factor of p-1
-    make_prime(p, pbits, iters);
+    mpz_t temp1, temp2, temp3, temp4;
+    mpz_inits(temp1, temp2, temp3, temp4, NULL);
     do{
         make_prime(q, qbits, iters);
-    }while(p == q || p%(q-1)==0 || q%(p-1)==0);
+        mpz_sub_ui(temp1, q, 1);
+        mpz_sub_ui(temp2, p, 1);
+        mpz_mod(temp3, p, temp1);
+        mpz_mod(temp4, p, temp2);
+
+    }while(mpz_cmp(p, q)==0 || mpz_sgn(temp3)==0 || mpz_sgn(temp4)==0);
 
     mpz_mul(n, p, p);
     mpz_mul(n, n, q); // n = p*p*q
+}
 
+void lcm(mpz_t l, mpz_t a, mpz_t b){
+    mpz_t multiple, denominator;
+    mpz_inits(multiple, denominator, NULL);
+    mpz_mul(multiple, a, b);
+    gcd(denominator, a, b);
+    mpz_fdiv_q(l, multiple, denominator); 
 }
 
 //
@@ -52,12 +67,14 @@ void ss_make_pub(mpz_t p, mpz_t q, mpz_t n, uint64_t nbits, uint64_t iters){
 //
 void ss_make_priv(mpz_t d, mpz_t pq, const mpz_t p, const mpz_t q){
 //we need lcm(a, b) which is just (a*b)//gcd(a, b)
-   mpz_t lambda, tempa, tempb;
-   mpz_inits(lambda, tempa, tempb, 0);
+   mpz_t lambda, tempa, tempb, n;
+   mpz_inits(lambda, tempa, tempb, n, NULL);
    mpz_mul(pq, p, q); 
-   mpz_sub(tempa, p, 1);
-   mpz_sub(tempb, q, 1);
+   mpz_sub_ui(tempa, p, 1);
+   mpz_sub_ui(tempb, q, 1);
    lcm(lambda, tempa, tempb);
+   mpz_mul(n, p, p);
+   mpz_mul(n, n, q);
    mod_inverse(d, n, lambda);
 }
 
@@ -86,9 +103,9 @@ void ss_write_pub(const mpz_t n, const char username[], FILE *pbfile){
 //
 void ss_write_priv(const mpz_t pq, const mpz_t d, FILE *pvfile){
     mpz_out_str(pvfile, 16, pq);
-    fprintf("\n");
+    fprintf(pvfile,"\n");
     mpz_out_str(pvfile, 16, d);
-    fprintf("\n");
+    fprintf(pvfile, "\n");
 }
 
 //
@@ -139,7 +156,7 @@ void ss_encrypt(mpz_t c, const mpz_t m, const mpz_t n){
     pow_mod(c, m, n, n);
 }
 
-uint8_t* makeBlock(mpz_t blocksize){
+uint8_t* makeBlock(uint64_t blocksize){
     uint8_t *block = (uint8_t *) calloc(blocksize, sizeof(char)); 
     return block;
 }
@@ -158,23 +175,23 @@ uint8_t* makeBlock(mpz_t blocksize){
 //
 void ss_encrypt_file(FILE *infile, FILE *outfile, const mpz_t n){
     mpz_t blocksize;
-    mpz_init(blocksize, 0);
+    mpz_init(blocksize);
     mpz_sqrt(blocksize, n);
     mpz_sub_ui(blocksize, blocksize, 1);
-    blocksize = mpz_sizeinbase(blocksize, 2);
-    mpz_fdiv_ui_q(blocksize, blocksize, 8); //blocksize = floor(logbase2(sqrt(n)-1)/8)
-    uint8_t *block = makeBlock(blocksize);
-    uint8_t nextAddress = block + sizeof(char);
-    mpz_t j, m, c;
-    mpz_inits(j, m, c, 0);
-    mpz_sub_ui(j, blocksize, 1);
+    uint64_t intBlockSize = mpz_sizeinbase(blocksize, 2);
+    intBlockSize /= 8; //blocksize = floor(logbase2(sqrt(n)-1)/8)
+    uint8_t *block = makeBlock(intBlockSize);
+    uint8_t *nextAddress = block + sizeof(char);
+    mpz_t m, c;
+    mpz_inits(m, c, NULL);
+    uint64_t j = intBlockSize - 1;
     int argNum = 0;
     mpz_t x;
-    mpz_init(x, 0);
+    mpz_init(x);
     size_t bytes = 0;
     do{
-        bytes = fread(nextAddress, sizeof(char), j, infile);//should start from block address +1
-        mpz_import(m, bytes, 1, 1, 0, block);
+        bytes = fread(nextAddress, sizeof(char), j, infile);//should start from block address +1        
+        mpz_import(m, bytes, 1, sizeof(char), 1, 0, block);
         ss_encrypt(c, m, n);
         mpz_out_str(outfile, 16, c);
         fprintf(outfile, "\n");
@@ -212,24 +229,24 @@ void ss_decrypt(mpz_t m, const mpz_t c, const mpz_t d, const mpz_t pq){
 //
 void ss_decrypt_file(FILE *infile, FILE *outfile, const mpz_t d, const mpz_t pq){
     mpz_t blocksize;
-    mpz_init(blocksize, 0);
+    mpz_init(blocksize);
     mpz_sqrt(blocksize, pq);
     mpz_sub_ui(blocksize, blocksize, 1);
-    blocksize = mpz_sizeinbase(blocksize, 2);
-    mpz_fdiv_ui_q(blocksize, blocksize, 8); //blocksize = floor(logbase2(sqrt(n)-1)/8)
-    uint8_t *block = makeBlock(blocksize);
-    uint8_t nextAddress = block + sizeof(char);
-    mpz_t j, m, c;
-    mpz_inits(j, m, c, 0);
-    mpz_sub_ui(j, blocksize, 1);
+    uint64_t intBlockSize = mpz_sizeinbase(blocksize, 2);
+    intBlockSize /= 8; //blocksize = floor(logbase2(sqrt(n)-1)/8)
+    uint8_t *block = makeBlock(intBlockSize);
+    uint8_t *nextAddress = block + sizeof(char);
+    mpz_t m, c;
+    mpz_inits(m, c, NULL);
+    uint64_t j = intBlockSize - 1;
     int argNum = 0;
     mpz_t x;
-    mpz_init(x, 0);
+    mpz_init(x);
     size_t bytes = 0;
     do{
-        bytes = mpz_input_str(infile, 16, c); //scans hex string into c
+        bytes = mpz_inp_str(c, infile, 16); //scans hex string into c
         ss_decrypt(m, c, d, pq); 
-        mpz_export(nextAddress, j, 1, 1, 0, m);//reads numbers from m into block starting from nextAddress.
+        mpz_export(nextAddress, NULL, 1, sizeof(char), 1, 0, m);//reads numbers from m into block starting from nextAddress.
         fprintf(outfile, "%s", block); 
         fprintf(outfile, "\n");
     }while(bytes != 0);

@@ -1,4 +1,4 @@
-i#include "randstate.h"
+#include "randstate.h"
 extern gmp_randstate_t state;
 
 //
