@@ -200,27 +200,31 @@ void ss_encrypt_file(FILE *infile, FILE *outfile, const mpz_t n){
     //printf("%p", (void *)nextAddress);
     mpz_t m, c;
     mpz_inits(m, c, NULL);
-    uint64_t j = intBlockSize - 1;
+    //uint64_t j = intBlockSize - 1;
     mpz_t x;
     mpz_init(x);
     size_t bytes = 0;
+    bytes = fread(nextAddress, sizeof(char), intBlockSize, infile);//should start from block address +1
     
-    do{
+    while(bytes != 0){
         //printf("bruh\n");
         block[0] = 0xff;
-        bytes = fread(nextAddress, sizeof(char), j, infile);//should start from block address +1
+        
+        //printf("%zu", bytes);
         //printf("bytes: %zu\n", bytes);
         //printf("block: %c\n", block[j]);
         //printf("nextAddress: %s\n", nextAddress);
 
-        mpz_import(m, bytes, 1, sizeof(char), 0, 0, block);
+        mpz_import(m, bytes+1, 1, sizeof(char), 0, 0, block);
         //printf("m: "); 
         //mpz_out_str(NULL, 2, m);
         //printf("\n");
         ss_encrypt(c, m, n);
+        //fprintf(outfile, "test");
         mpz_out_str(outfile, 16, c);
         fprintf(outfile, "\n");
-    }while(bytes != 0);
+        bytes = fread(nextAddress, sizeof(char), intBlockSize, infile);//should start from block address +1
+    }
     
 }
 
@@ -267,13 +271,21 @@ void ss_decrypt_file(FILE *infile, FILE *outfile, const mpz_t d, const mpz_t pq)
     mpz_t x;
     mpz_init(x);
     size_t bytes = 0;
-    do{
-        bytes = mpz_inp_str(c, infile, 16); //scans hex string into c
+    bytes = mpz_inp_str(c, infile, 16); //scans hex string into c
+    while(bytes != 0){
+        block[0] = 0xff;
+        //printf("bytes: %zu\n", bytes); 
         ss_decrypt(m, c, d, pq); 
+        int test = mpz_sizeinbase(m, 2)/8;
+        //printf("%zu\n", mpz_sizeinbase(m, 2)/12);
         mpz_export(nextAddress, NULL, 1, sizeof(char), 1, 0, m);//reads numbers from m into block starting from nextAddress.
-        fprintf(outfile, "%s", block); 
-        fprintf(outfile, "\n");
-    }while(bytes != 0);
-    
+        //fprintf(outfile,NULL);
+        //fprintf(outfile, "%s", nextAddress + sizeof(char));
+        fprintf(outfile, "%.*s", test-1, nextAddress + sizeof(char)); 
 
+        //fprintf(outfile, "\n");
+        bytes = mpz_inp_str(c, infile, 16); //scans hex string into c
+    }
+    fprintf(outfile, "\n");
+    
 }

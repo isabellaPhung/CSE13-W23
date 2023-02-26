@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define OPTIONS "i:o:n:vh"
+#define OPTIONS "vi:o:n:h"
 
 //prints instructions for use
 void usage(char *exec) {
@@ -83,13 +83,14 @@ int main(int argc, char **argv) {
     ss_read_pub(n, username, pubkey);// get pub key n
     //maybe check that n has a value
     ss_encrypt_file(input, output, n);
-    fclose(pubkey);
-    fclose(input);
-    fclose(output);
+    
     if(verbose){
         printf("user: %s\n", username);
         gmp_printf("n: %Zd\n", n); 
     }
+    fclose(pubkey);
+    fclose(input);
+    fclose(output);
     mpz_clear(n);
     //TODO get rid of mpz integers
 
