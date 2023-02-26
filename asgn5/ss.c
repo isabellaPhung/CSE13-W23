@@ -2,6 +2,7 @@
 #include "numtheory.h"
 #include <stdlib.h>
 #include <time.h>
+#include <inttypes.h>
 
 //
 // Generates the components for a new SS key.
@@ -169,6 +170,7 @@ void ss_encrypt(mpz_t c, const mpz_t m, const mpz_t n){
 
 uint8_t* makeBlock(uint64_t blocksize){
     uint8_t *block = (uint8_t *) calloc(blocksize, sizeof(char)); 
+    //printf("%"PRId64, blocksize);
     return block;
 }
 
@@ -192,16 +194,29 @@ void ss_encrypt_file(FILE *infile, FILE *outfile, const mpz_t n){
     uint64_t intBlockSize = mpz_sizeinbase(blocksize, 2);
     intBlockSize /= 8; //blocksize = floor(logbase2(sqrt(n)-1)/8)
     uint8_t *block = makeBlock(intBlockSize);
+    //printf("%p", (void *)block);
+
     uint8_t *nextAddress = block + sizeof(char);
+    //printf("%p", (void *)nextAddress);
     mpz_t m, c;
     mpz_inits(m, c, NULL);
     uint64_t j = intBlockSize - 1;
     mpz_t x;
     mpz_init(x);
     size_t bytes = 0;
+    
     do{
-        bytes = fread(nextAddress, sizeof(char), j, infile);//should start from block address +1        
-        mpz_import(m, bytes, 1, sizeof(char), 1, 0, block);
+        //printf("bruh\n");
+        block[0] = 0xff;
+        bytes = fread(nextAddress, sizeof(char), j, infile);//should start from block address +1
+        //printf("bytes: %zu\n", bytes);
+        //printf("block: %c\n", block[j]);
+        //printf("nextAddress: %s\n", nextAddress);
+
+        mpz_import(m, bytes, 1, sizeof(char), 0, 0, block);
+        //printf("m: "); 
+        //mpz_out_str(NULL, 2, m);
+        //printf("\n");
         ss_encrypt(c, m, n);
         mpz_out_str(outfile, 16, c);
         fprintf(outfile, "\n");
