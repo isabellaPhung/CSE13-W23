@@ -95,10 +95,10 @@ void ss_make_priv(mpz_t d, mpz_t pq, const mpz_t p, const mpz_t q){
 //  pbfile: open and writable file stream
 //
 void ss_write_pub(const mpz_t n, const char username[], FILE *pbfile){
-    mpz_out_str(NULL, 10, n);
-    printf("\n");
-    mpz_out_str(NULL, 16, n);
-    printf("\n");
+    //mpz_out_str(NULL, 10, n);
+    //printf("\n");
+    //mpz_out_str(NULL, 16, n);
+    //printf("\n");
     mpz_out_str(pbfile, 16, n);
     fprintf(pbfile, "\n");
     fprintf(pbfile, "%s", username);

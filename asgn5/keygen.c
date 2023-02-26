@@ -28,10 +28,10 @@ void usage(char *exec) {
         "OPTIONS\n"
         "   -b bits        Minimum bits for public key n. Default: 256\n"
         "   -i iterations  Iterations for Miller-Rabin Primaility testing.\n" 
-                            "Greater the number, higher likelihood the value will be prime. Default: 50.\n"
+        "                  Greater the number, higher likelihood the value will be prime. Default: 50.\n"
         "   -n publicKey   File name for public key. Default: ss.pub.\n"
         "   -d privateKey  File name for private key. Defualt ss.priv.\n"
-        "   -s seed        Seed for random number generator. Default: seconds." 
+        "   -s seed        Seed for random number generator. Default: seconds.\n" 
         "   -v             Displays verbose output.\n"
         "   -h             description/help\n",
         exec);
@@ -55,6 +55,10 @@ int main(int argc, char **argv) {
         switch (opt) {
         case 'b':
             bits = (uint64_t) strtoul(optarg, NULL, 10);
+            if(bits<10){
+                printf("Inputed bit number is too small to generate primes.\n");
+                return 0;
+            }
             index += 2;
             break;
         case 'i':
@@ -65,7 +69,7 @@ int main(int argc, char **argv) {
             pubkeyfilename = argv[index + 2];
             index += 2;
             break; //public key file
-        case 'o':
+        case 'd':
             privkeyfilename = argv[index + 2];
             index += 2;
             break; //private key file
@@ -95,8 +99,8 @@ int main(int argc, char **argv) {
         printf("Error opening %s\n", privkeyfilename);
         return 0;
     }
-    int filenum = fileno(privkey);
-    fchmod(0600, filenum);
+    //int filenum = fileno(privkey);
+    chmod(privkeyfilename, strtol("0600", 0, 8));
 
     randstate_init(seed);
 
