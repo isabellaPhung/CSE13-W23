@@ -51,7 +51,6 @@ int main(int argc, char **argv) {
             break; //input file
         case 'o':
             output = fopen(argv[index + 2], "w");
-            //printf("%s", argv[index+2]);
             index += 2;
             break; //output file
          case 'n':
@@ -81,7 +80,6 @@ int main(int argc, char **argv) {
     mpz_t pq, d;
     mpz_inits(pq, d, NULL);
     ss_read_priv(pq, d, privkey);// get priv key pq and d
-    //maybe check that n has a value
     ss_decrypt_file(input, output, d, pq);
     if(verbose){
         printf("\n");
@@ -93,7 +91,6 @@ int main(int argc, char **argv) {
     fclose(output);
 
     mpz_clears(pq, d, NULL);
-    //TODO get rid of mpz integers
 
     return 0;
 }

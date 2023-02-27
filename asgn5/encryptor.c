@@ -61,7 +61,6 @@ int main(int argc, char **argv) {
             verbose = true;
             index++;
             break; //verbose option
-        
         default: usage(argv[0]); return EXIT_FAILURE;
         }
     }
@@ -81,7 +80,6 @@ int main(int argc, char **argv) {
     char username[LOGIN_NAME_MAX];
     mpz_init(n);
     ss_read_pub(n, username, pubkey);// get pub key n
-    //maybe check that n has a value
     ss_encrypt_file(input, output, n);
     
     if(verbose){
@@ -92,7 +90,6 @@ int main(int argc, char **argv) {
     fclose(input);
     fclose(output);
     mpz_clear(n);
-    //TODO get rid of mpz integers
 
     return 0;
 }

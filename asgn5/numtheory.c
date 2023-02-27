@@ -2,6 +2,8 @@
 #include "randstate.h"
 gmp_randstate_t state;
 
+//calculate gcd of a and b and stores the value
+//in g. input: initialized gmp ints g, a, and b
 void gcd(mpz_t g, const mpz_t a, const mpz_t b){
     mpz_t tempa, tempb, temp;
     mpz_init_set(tempa, a);
@@ -19,6 +21,10 @@ void gcd(mpz_t g, const mpz_t a, const mpz_t b){
     return;
 }
 
+// calculates the mod inverse of a and n and stores the value
+//in o, if there doesn't exist a mod inverse, 0 will be stored
+//in o.
+//input: initialized gmp ints o, a, and n
 void mod_inverse(mpz_t o, const mpz_t a, const mpz_t n){
     mpz_t r, rprime, t, tprime, q, temp1, temp2;
     mpz_init_set(r, a); //r = value we're modding by
@@ -50,6 +56,8 @@ void mod_inverse(mpz_t o, const mpz_t a, const mpz_t n){
     mpz_set(o, t); //return t
 }
 
+//calculates the power mod of a, d, and n and stores the value in o
+//input: initialized gmp integers o, a, d, and n
 void pow_mod(mpz_t o, const mpz_t a, const mpz_t d, const mpz_t n){
     mpz_t v, p, tempd;
     mpz_init_set_ui(v, 1);
@@ -68,6 +76,9 @@ void pow_mod(mpz_t o, const mpz_t a, const mpz_t d, const mpz_t n){
     mpz_set(o, v);
 }
 
+//performs witness check for is_prime, where randval is a
+//input: initialized gmp ints randval and n
+//output: True if random value is euler's witness, false otherwise
 bool witness(mpz_t randval, const mpz_t n){
     //get d and r from randval and n
     mpz_t d, r;
@@ -94,6 +105,10 @@ bool witness(mpz_t randval, const mpz_t n){
     return mpz_cmp_ui(x, 1) != 0; // return x != 1
 }
 
+//checks if the given value is prime using the Miller-Rabin
+//algorithm. More accurate w/ more iterations
+//input: gmp int n, unsigned 64bit int iterations
+//output: returns true if given value is prime
 bool is_prime(const mpz_t n, uint64_t iters){
     mpz_t tempvar, randomval; 
     mpz_inits(tempvar, randomval, NULL);
@@ -120,11 +135,12 @@ bool is_prime(const mpz_t n, uint64_t iters){
     return true;
 }
 
+//produces a prime number with length of the given bits
+//and stores it in p.
+//input: initialized gmp int, unsigned ints bits and iters.
+//more iterations increases likelihood that number is prime
 void make_prime(mpz_t p, uint64_t bits, uint64_t iters){     
     do{
         mpz_rrandomb(p, state, bits); 
-        //mpz_out_str(NULL, 10, p);
-        //printf("\n");
-        //printf("%d\n", is_prime(p, iters));
     } while(!is_prime(p, iters));
 }

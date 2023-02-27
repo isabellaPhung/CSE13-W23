@@ -14,7 +14,6 @@
 #include <sys/stat.h>
 
 #define OPTIONS "b:i:n:d:s:vh"
-//gmp_randstate_t state;
 
 //prints instructions for use
 void usage(char *exec) {
@@ -77,12 +76,10 @@ int main(int argc, char **argv) {
             seed = (uint64_t) strtoul(optarg, NULL, 10);
             index++;
             break; //seed
-
         case 'v':
             verbose = true;
             index++;
             break; //verbose option
-        
         default: usage(argv[0]); return EXIT_FAILURE;
         }
     }
@@ -99,21 +96,21 @@ int main(int argc, char **argv) {
         printf("Error opening %s\n", privkeyfilename);
         return 0;
     }
-    //int filenum = fileno(privkey);
-    chmod(privkeyfilename, strtol("0600", 0, 8));
+    chmod(privkeyfilename, strtol("0600", 0, 8)); //make priv key only user accessible
 
     randstate_init(seed);
 
     mpz_t p, q, n;
     mpz_inits(p, q, n, NULL);
-    ss_make_pub(p, q, n, bits, iterations);
+    ss_make_pub(p, q, n, bits, iterations); //makes p, q and n
     mpz_t d, pq;
     mpz_inits(d, pq, NULL);
-    ss_make_priv(d, pq, p, q);
+    ss_make_priv(d, pq, p, q); //makes d and pq
     
     char *user = getenv("USER");
-    ss_write_pub(n, user, pubkey);
-    ss_write_priv(pq, d, privkey);
+    ss_write_pub(n, user, pubkey); //writes n to file
+    ss_write_priv(pq, d, privkey); // writes pq and d to file
+    
     if(verbose){
         printf("user = %s\n", user);
         gmp_printf("p  (%d) = %Zd\n", mpz_sizeinbase(p, 2), p);
@@ -127,7 +124,6 @@ int main(int argc, char **argv) {
     fclose(privkey);
     randstate_clear();
     mpz_clears(p, q, n, d, pq, NULL);
-    //TODO get rid of mpz integers
 
     return 0;
 }

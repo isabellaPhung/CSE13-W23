@@ -1,3 +1,4 @@
+//Written by Isabella Phung with comments from CSE13S instructors
 #include "randstate.h"
 extern gmp_randstate_t state;
 
