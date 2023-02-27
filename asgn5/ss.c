@@ -41,7 +41,7 @@ void ss_make_pub(mpz_t p, mpz_t q, mpz_t n, uint64_t nbits, uint64_t iters) {
     //and that q is not a factor of p-1
     mpz_t temp1, temp2, temp3, temp4;
     mpz_inits(temp1, temp2, temp3, temp4, NULL);
-    do { // constantly generate nw primes until we get values that fit our criteria
+    do { // constantly generate new primes until we get values that fit our criteria
         make_prime(p, pbits, iters);
         make_prime(q, qbits, iters);
         mpz_sub_ui(temp1, q, 1);
