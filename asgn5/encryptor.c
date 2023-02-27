@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
             output = fopen(argv[index + 2], "w");
             index += 2;
             break; //output file
-         case 'n':
+        case 'n':
             keyfilename = argv[index + 2];
             index += 2;
             break; //pub key file
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
         default: usage(argv[0]); return EXIT_FAILURE;
         }
     }
-    pubkey = fopen(keyfilename, "r");// read public key
+    pubkey = fopen(keyfilename, "r"); // read public key
     //if input file doesn't exist
     if (input == NULL) {
         printf("Error opening %s\n", inputfilename);
@@ -79,12 +79,12 @@ int main(int argc, char **argv) {
     mpz_t n;
     char username[LOGIN_NAME_MAX];
     mpz_init(n);
-    ss_read_pub(n, username, pubkey);// get pub key n
+    ss_read_pub(n, username, pubkey); // get pub key n
     ss_encrypt_file(input, output, n);
-    
-    if(verbose){
+
+    if (verbose) {
         printf("user: %s\n", username);
-        gmp_printf("n: %Zd\n", n); 
+        gmp_printf("n: %Zd\n", n);
     }
     fclose(pubkey);
     fclose(input);

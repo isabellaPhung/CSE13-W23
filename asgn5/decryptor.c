@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
             output = fopen(argv[index + 2], "w");
             index += 2;
             break; //output file
-         case 'n':
+        case 'n':
             keyfilename = argv[index + 2];
             index += 2;
             break; //priv key file
@@ -61,11 +61,11 @@ int main(int argc, char **argv) {
             verbose = true;
             index++;
             break; //verbose option
-        
+
         default: usage(argv[0]); return EXIT_FAILURE;
         }
     }
-    privkey = fopen(keyfilename, "r");// read priv key
+    privkey = fopen(keyfilename, "r"); // read priv key
     //if input file doesn't exist
     if (input == NULL) {
         printf("Error opening %s\n", inputfilename);
@@ -79,9 +79,9 @@ int main(int argc, char **argv) {
 
     mpz_t pq, d;
     mpz_inits(pq, d, NULL);
-    ss_read_priv(pq, d, privkey);// get priv key pq and d
+    ss_read_priv(pq, d, privkey); // get priv key pq and d
     ss_decrypt_file(input, output, d, pq);
-    if(verbose){
+    if (verbose) {
         printf("\n");
         gmp_printf("pq: %Zd\n", pq);
         gmp_printf("d: %Zd\n", d);

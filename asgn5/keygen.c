@@ -1,7 +1,7 @@
 //Written by Isabella Phung for CSE13S
 #include "ss.h"
 #include "numtheory.h"
-#include "randstate.h" 
+#include "randstate.h"
 
 #include <inttypes.h>
 #include <stdint.h>
@@ -26,11 +26,12 @@ void usage(char *exec) {
         "\n"
         "OPTIONS\n"
         "   -b bits        Minimum bits for public key n. Default: 256\n"
-        "   -i iterations  Iterations for Miller-Rabin Primaility testing.\n" 
-        "                  Greater the number, higher likelihood the value will be prime. Default: 50.\n"
+        "   -i iterations  Iterations for Miller-Rabin Primaility testing.\n"
+        "                  Greater the number, higher likelihood the value will be prime. Default: "
+        "50.\n"
         "   -n publicKey   File name for public key. Default: ss.pub.\n"
         "   -d privateKey  File name for private key. Defualt ss.priv.\n"
-        "   -s seed        Seed for random number generator. Default: seconds.\n" 
+        "   -s seed        Seed for random number generator. Default: seconds.\n"
         "   -v             Displays verbose output.\n"
         "   -h             description/help\n",
         exec);
@@ -46,7 +47,7 @@ int main(int argc, char **argv) {
     int opt = 0;
     uint64_t bits = 256;
     uint64_t iterations = 50;
-    uint64_t seed = (uint64_t)time(NULL);
+    uint64_t seed = (uint64_t) time(NULL);
     int index = 0; //index used for keeping track of arguments
     char *pubkeyfilename = "ss.pub";
     char *privkeyfilename = "ss.priv";
@@ -54,7 +55,7 @@ int main(int argc, char **argv) {
         switch (opt) {
         case 'b':
             bits = (uint64_t) strtoul(optarg, NULL, 10);
-            if(bits<10){
+            if (bits < 10) {
                 printf("Inputed bit number is too small to generate primes.\n");
                 return 0;
             }
@@ -83,14 +84,14 @@ int main(int argc, char **argv) {
         default: usage(argv[0]); return EXIT_FAILURE;
         }
     }
-    pubkey = fopen(pubkeyfilename, "w");// write public key
+    pubkey = fopen(pubkeyfilename, "w"); // write public key
     //if pub key file doesn't exist
     if (pubkey == NULL) {
         printf("Error opening %s\n", pubkeyfilename);
         return 0;
     }
-    
-    privkey = fopen(privkeyfilename, "w");// write priv key
+
+    privkey = fopen(privkeyfilename, "w"); // write priv key
     //if priv key file doesn't exist
     if (privkey == NULL) {
         printf("Error opening %s\n", privkeyfilename);
@@ -106,12 +107,12 @@ int main(int argc, char **argv) {
     mpz_t d, pq;
     mpz_inits(d, pq, NULL);
     ss_make_priv(d, pq, p, q); //makes d and pq
-    
+
     char *user = getenv("USER");
     ss_write_pub(n, user, pubkey); //writes n to file
     ss_write_priv(pq, d, privkey); // writes pq and d to file
-    
-    if(verbose){
+
+    if (verbose) {
         printf("user = %s\n", user);
         gmp_printf("p  (%d) = %Zd\n", mpz_sizeinbase(p, 2), p);
         gmp_printf("q  (%d) = %Zd\n", mpz_sizeinbase(q, 2), q);
