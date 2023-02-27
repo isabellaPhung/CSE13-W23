@@ -215,6 +215,8 @@ void ss_encrypt_file(FILE *infile, FILE *outfile, const mpz_t n) {
         bytes = fread(
             nextAddress, sizeof(char), intBlockSize, infile); //should start from block address +1
     }
+    free(block);
+    block = NULL;
     mpz_clears(blocksize, m, c, NULL);
 }
 
@@ -273,5 +275,7 @@ void ss_decrypt_file(FILE *infile, FILE *outfile, const mpz_t d, const mpz_t pq)
         bytes = mpz_inp_str(c, infile, 16); //scans hex string into c
     }
     fprintf(outfile, "\n");
+    free(block);
+    block = NULL;
     mpz_clears(blocksize, m, c, NULL);
 }

@@ -48,12 +48,14 @@ void mod_inverse(mpz_t o, const mpz_t a, const mpz_t n) {
     }
     if (mpz_cmp_ui(r, 1) > 0) { // if r> 1
         mpz_set_ui(o, 0); // return 0 aka no ivnerse
+        mpz_clears(r, rprime, t, tprime, q, temp1, temp2, NULL);
         return;
     }
     if (mpz_sgn(t) == -1) { // if t<0:
         mpz_add(t, t, n); // t = t+n
     }
     mpz_set(o, t); //return t
+    mpz_clears(r, rprime, t, tprime, q, temp1, temp2, NULL);
 }
 
 //calculates the power mod of a, d, and n and stores the value in o
@@ -74,6 +76,7 @@ void pow_mod(mpz_t o, const mpz_t a, const mpz_t d, const mpz_t n) {
         mpz_fdiv_q_ui(tempd, tempd, 2);
     }
     mpz_set(o, v);
+    mpz_clears(v, p, tempd, NULL);
 }
 
 //performs witness check for is_prime, where randval is a
@@ -99,11 +102,14 @@ bool witness(mpz_t randval, const mpz_t n) {
         pow_mod(y, x, temp, n); //y = powmod(x, 2, n)
         if (mpz_cmp_ui(y, 1) == 0 && mpz_cmp_ui(x, 1) != 0
             && mpz_cmp(x, tempn) != 0) { // if y==1 and x != 1 and x!= n-1
+            mpz_clears(d, r, x, y, j, temp, tempn, NULL);
             return true;
         }
         mpz_set(x, y); //x = y
     }
-    return mpz_cmp_ui(x, 1) != 0; // return x != 1
+    int final = mpz_cmp_ui(x, 1) != 0;
+    mpz_clears(d, r, x, y, j, temp, tempn, NULL);
+    return final; // return x != 1
 }
 
 //checks if the given value is prime using the Miller-Rabin
@@ -117,9 +123,11 @@ bool is_prime(const mpz_t n, uint64_t iters) {
     mpz_mod_ui(tempvar, n, 2); // temporary value stores n%2
     if (mpz_cmp_ui(n, 2) < 0
         || (mpz_cmp_ui(n, 2) != 0 && mpz_sgn(tempvar) == 0)) { //if n<2 or (n!=2 and n%2==0)
+        mpz_clears(tempvar, randomval, NULL);
         return false;
     }
     if (mpz_cmp_ui(n, 2) == 0 || mpz_cmp_ui(n, 3) == 0) { //if n==2 or n ==3
+        mpz_clears(tempvar, randomval, NULL);
         return true;
     }
 
@@ -131,9 +139,11 @@ bool is_prime(const mpz_t n, uint64_t iters) {
         mpz_add_ui(randomval, randomval, 2); // add 2 to random val
         //witness check
         if (witness(randomval, n)) {
+            mpz_clears(tempvar, randomval, NULL);
             return false;
         }
     }
+    mpz_clears(tempvar, randomval, NULL);
     return true;
 }
 
