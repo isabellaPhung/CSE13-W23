@@ -53,6 +53,7 @@ void ss_make_pub(mpz_t p, mpz_t q, mpz_t n, uint64_t nbits, uint64_t iters) {
 
     mpz_mul(n, p, p);
     mpz_mul(n, n, q); // n = p*p*q
+    mpz_clears(temp1, temp2, temp3, temp4, NULL);
 }
 
 //finds the lcm of two GMP integers, a and b
@@ -65,6 +66,7 @@ void lcm(mpz_t l, mpz_t a, mpz_t b) {
     mpz_mul(multiple, a, b);
     gcd(denominator, a, b);
     mpz_fdiv_q(l, multiple, denominator);
+    mpz_clears(multiple, denominator, NULL);
 }
 
 //
@@ -89,6 +91,7 @@ void ss_make_priv(mpz_t d, mpz_t pq, const mpz_t p, const mpz_t q) {
     mpz_mul(n, p, p);
     mpz_mul(n, n, q); // n = p*p*q
     mod_inverse(d, n, lambda); //d = modinverse(n, lambda)
+    mpz_clears(lambda, tempa, tempb, n, NULL);
 }
 
 //
@@ -212,6 +215,7 @@ void ss_encrypt_file(FILE *infile, FILE *outfile, const mpz_t n) {
         bytes = fread(
             nextAddress, sizeof(char), intBlockSize, infile); //should start from block address +1
     }
+    mpz_clears(blocksize, m, c, NULL);
 }
 
 //
@@ -269,4 +273,5 @@ void ss_decrypt_file(FILE *infile, FILE *outfile, const mpz_t d, const mpz_t pq)
         bytes = mpz_inp_str(c, infile, 16); //scans hex string into c
     }
     fprintf(outfile, "\n");
+    mpz_clears(blocksize, m, c, NULL);
 }
