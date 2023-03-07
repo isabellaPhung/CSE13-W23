@@ -1,0 +1,27 @@
+xxd is a hex reader use xxd -b to spit out binary
+first four bites of file make up header. fileheader is 48 bytes but comoputer likes 64 bits so it'll add 4 zeros after the file header
+protection = fd81
+if you issue a read call, it returns some value, compare to goal number. may retrun 0 or -11 = permission
+look at test.io. generates header and writes it out. you use fstat, gives details of file. check that values are written right. read header should check for any issues (unfortunately can't return anything, just print something or use assert)
+read and write header should use read and write bytes
+
+read_sym:
+used for encoding, reads the file to buffer, reads buffer of size block character by character then writes to buffer
+needs to use total_syms value from top of file.
+buffers may be shared between functions, make it static. declate outside of function
+read in file one block at a time, maintain an index of where you are in the block. everytime you read something, update total_syms. everytime you write, update total_bits
+
+read and write pair are tricky:
+code variable is variable length.
+write pair used by encode
+bitlen is length of code, which is provided by encode.
+need to maintain a buffer of pairs of size block
+writepair
+startcode is 2. next code is 3 bits long so bitlen is 3, sym is a
+2 is 010, a is 1100001, since its 8 bits, put a 0 in front of a. start at least significant of 2, right of it, the store right most part of a. so the buffer will be [0101000][110] if you have an index for bits, dividing it by 8 will give you the index and moduloing it with 8, will give you the bit. ex 226 index = 28 and bit = 2 so it shows you the byte and which bit index to alter. if bitindex is equal to 4096*8, then buffer is full and need to write to file.
+bv64.h talk about how to extract an exact bit from an array.
+might be worth writing a nextbit function that gets you the individual bit of an array
+its only the pairs buffer that needs the bit specific stuff
+
+readpair is weird : decode uses it. you can use pairs array there's no chance of write and readpair being called at the same time
+basically, loop for bitlen, take your code and or it with the bits you read, it will change code to the bits you're looking for, do the same for the remaining buts 8 times. 
