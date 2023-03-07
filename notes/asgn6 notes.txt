@@ -1,0 +1,98 @@
+lempel-ziv:
+encode patterns of words with an integer(unsigned 16 bit) and a symbol(8 bit char). 
+the max # of codes we can have is 2^16-1. one code has to be reserved as the stop code, which is 0.
+need to make it work for both big and little endian systems
+blocks should be around 4kb
+
+only things you store are the compressed file, and file header that has magic number which tells computer that its decompressable.  going to use lz78.  used in gif, png, and zip. lossless
+ex:
+abababc
+stop = 0
+empty = 1
+start = 2
+start symbol, then a [2, a] store a = 3
+don't see b in table, so 2,b, store b = 4
+have seen a before, so now look at combo of ab, havent seen ab, so save it as [3,b], store ab = 5,
+look at a, we have seen ab, have we seen abc before?no, store 5,c, abc = 6
+we write the [][] stuff to file
+so we have:
+[2,a]
+[2,b]
+[3,b]
+[5,c]
+you'll actually be storing the code associated w/ each string so it'll look like this:
+[2,3]
+[2,4]
+[3,4]
+[5,5]
+
+we'll be using a trie to store everything.
+start w/ root, 256 children max
+ex: cse13s class is cse
+c, hasn't have before, add to root
+keep adding until we see s and space, store space under s, next is cl, store l under c, store a by itsself, now look at ss, store s under s, space not stored by itself so add that, I not stored, s+space stored, c goes under space, then store e under s. every letter then gets a code starting from 3 this is called the word table.
+c = 3, s = 4, e = 5, 1 - 7, 3 - 7, space = 8. so s+space = 48.
+the trie doesn't get stored, only store word table.
+you have a limit on your trie which is uint16_t, 2^16. when you hit this limit, write to file, clear everything and start over.
+
+trieNOde has children in the form of an array up 256. trie_node_create, typo, argument should be code, not index.reset give sback rootnode, delete gets rid of entire trie. trie_node_delete, only gets rid of a letter. recursively calls trie delete on it's children, if it doesn't have children, call trie node delete. trie step wehn given (pointer to a, "b"), returns pointer to b, but if trie step is given (pointer to a, "c"), it returns null bc a doesn't have a child w/ c.
+
+trie used for compression. now need word table for decompression. look up table = big array. Word stores array of symbols and the length. symbol = char
+now create table.
+word append should increase len by 1
+
+how do we store [symbol, code]? ex: (13, a), you can calculate it similarly with last assignment. Store 13, padded by 0s, then 97, 97 is the ascii code for a. last 8 bits always reserved for symbol. written the opposate way when stored.
+
+decompression:
+start from stop empty and start, read symbol and code and build,
+
+we're going to use buffers rather than fread. our buffer will be 4kb, preallocated memory. don't need to calloc it.
+0xBAADBAAC, our magic number
+in our file directories, it isn't actually the file extension that dictates the file's type. its the magic number.
+use system calls instead of printf. printf is an abstractions
+can use strace on a program to figure out what's happening
+printf gets turned into a write system call, which writes to standard out.
+man 2 read tells you what the syscall does. ssize_t signed value. we're going to write a wrapper function with read, bc read sometimes doesn't read all of the bytes, so we have to make our own function. read returns the # of bytes, use that to make our function.
+we'll use write for "printing stuff", we'll aslo use open and close for the files. import sys/syscall.h need stdlib, stdio, fcntl(file control), errno.h. 
+
+we have some small functions that tell you if it's big or small endian. you can use swap functions so those should spit out the correct endian-nesson the symbol.
+
+we'll have two buffers for decompression, have a read and write buffer both are 4096 aka 4kb. remember you do everything in the buffer then when its full, flush into output file with write. if not full but time to flush, use flush words.
+keep track of how many bytes read vs how many written
+
+entropy.c, can calculate aproximate entropy
+
+another example
+abcabcccabc
+stop = 0 
+empty = 1
+start = 2
+a=2
+b=3
+c=4
+ab = 5
+cc = 6
+ca = 7
+bc = 8
+1 is the root, it represents empty
+[1,a]
+[1,b]
+[1,c]
+[2,b]
+[4,c]
+[4,a]
+[3,c]
+
+another example: aaabaaa
+stop = 0
+empty = 1
+a = 2
+aa = 3
+b = 4
+aaa = 5
+[1,a]
+[2,a]
+[1,b]
+[3,a]
+these things make up our trie, but this is for encryption, it'll get written down such that we have 10[binary for 97]110[binary for 97]10[binary for 98]100[binary for 97]
+

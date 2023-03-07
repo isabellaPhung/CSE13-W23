@@ -120,7 +120,7 @@ size_t type similar to integer type
 need to allocate buffer using calloc
 include unistd which have some file read options
 fread returns number of lines, so while it's not 0, can continue to read. remember to free the buffer and close the file when youre done
-how to do log for the equation of a buffer? gmp has mpz_sizeinbase, takes log. can also be used to figure out how many bits needed to store a particular value
+how to do  for the equation of a buffer? gmp has mpz_sizeinbase, takes log. can also be used to figure out how many bits needed to store a particular value
 
 setting permissions, use fchmod, include sys/stat.h
 the number you give is an octal number that says whethe the user, guest, or other users can read or write.
