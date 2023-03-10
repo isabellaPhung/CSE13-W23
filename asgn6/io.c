@@ -10,7 +10,16 @@
 // time it calls read().
 //
 int read_bytes(int infile, uint8_t *buf, int to_read){
-
+    int bytes_read = 0;
+    while(to_read != 0){
+        bytes = read(infile, buf, to_read);
+        if(bytes =< 0){
+            break;
+        }
+        bytes_read += bytes;
+        to_read -= bytes;
+    }
+    return bytes_read;
 }
 
 //
@@ -20,6 +29,16 @@ int read_bytes(int infile, uint8_t *buf, int to_read){
 // writes as many bytes as possible.
 //
 int write_bytes(int outfile, uint8_t *buf, int to_write){
+    int bytes_written = 0;
+    while(to_write != 0){
+        bytes = write(infile, buf, to_write);
+        if(bytes =< 0){
+            break;
+        }
+        bytes_written += bytes;
+        to_write -= bytes;
+    }
+    return bytes_written;
 
 }
 
@@ -47,16 +66,29 @@ int write_bytes(int outfile, uint8_t *buf, int to_write){
 // may call assert() to do that, or print out an error message and exit the program, or use some
 // other way to report the error.
 //
-void read_header(int infile, FileHeader *header){
+uint8_t *symbols[BLOCK];
 
+void createBlock(void){
+    symbols = (uint8_t *)calloc(BLOCK, sizeof(uint8_t));
+    return;
+}
+
+void deleteBlock(void){
+    free(symbols);
+    return;
+}
+//assuming little endianness for now.
+void read_header(int infile, FileHeader *header){
+    read_bytes(infile, header, sizeof(FileHeader));
 }
 
 //
 // Write a file header from *header to outfile. Like above, this function should swap the byte order
 // of the header's two fields if necessary.
 //
-void write_header(int outfile, FileHeader *header){
 
+void write_header(int outfile, FileHeader *header){
+    write_Bytes(outfile, header, sizeof(FileHeader));
 }
 
 //
