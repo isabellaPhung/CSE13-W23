@@ -5,7 +5,13 @@
  * Allocates new array and copies the symbols over
  */
 Word *word_create(uint8_t *syms, uint32_t len){
-
+    Word *newWord = (Word *)calloc(sizeof(Word));
+    newWord -> len = len;
+    uint8_t *symbols = (uint8_t *)calloc(len, sizeof(uint8_t));    
+    for(uint32_t i = 0; i < len; i++){
+        symbols[i] = newWord -> syms[i];
+    }
+    return newWord;
 }
 
 /*
@@ -14,7 +20,14 @@ Word *word_create(uint8_t *syms, uint32_t len){
  * Returns a pointer to the newly allocated word
  */
 Word *word_append_sym(Word *w, uint8_t sym){
-
+    uint32_t newLen = len + 1;
+    uint8_t *newSyms = (uint8_t *)calloc(newLen, sizeof(uint8_t));
+    for(uint32_t i = 0; i < len; i++){
+        newSyms[i] = w -> syms[i];
+    }
+    newSyms[len] = sym;
+    Word newWord = word_create(newSyms, newLen);
+    return NewWord;
 }
 
 /*
@@ -22,7 +35,9 @@ Word *word_append_sym(Word *w, uint8_t sym){
  * Frees up associated space
  */
 void word_delete(Word *w){
-
+    free(w->syms);
+    free(w);
+    w = NULL;
 }
 
 /*
@@ -31,7 +46,10 @@ void word_delete(Word *w){
  * Creates the first element at EMPTY_CODE and returns it
  */
 WordTable *wt_create(void){
-
+    WordTable *wt = (WordTable *)calloc(MAX_CODE, sizeof(WordTable));
+    Word empty = create_word("", 0);
+    wt[EMPTY_CODE] = empty;
+    return wt;
 }
 
 /*
@@ -39,7 +57,9 @@ WordTable *wt_create(void){
  * Frees associated memory
  */
 void wt_reset(WordTable *wt){
-
+   for(uint32_t i = START_CODE; i < MAX_CODE; i++){
+        free(wt[i]);
+   }
 }
 
 /*
@@ -47,6 +67,9 @@ void wt_reset(WordTable *wt){
  * Frees up associated memory
  */
 void wt_delete(WordTable *wt){
-
+    wt_reset(wt);
+    free(wt[EMPTY_CODE]);
+    free(wt);
+    wt = NULL;
 }
 
