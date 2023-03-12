@@ -66,17 +66,7 @@ int write_bytes(int outfile, uint8_t *buf, int to_write){
 // may call assert() to do that, or print out an error message and exit the program, or use some
 // other way to report the error.
 //
-uint8_t *symbols[BLOCK];
 
-void createBlock(void){
-    symbols = (uint8_t *)calloc(BLOCK, sizeof(uint8_t));
-    return;
-}
-
-void deleteBlock(void){
-    free(symbols);
-    return;
-}
 //assuming little endianness for now.
 void read_header(int infile, FileHeader *header){
     read_bytes(infile, header, sizeof(FileHeader));
@@ -91,6 +81,18 @@ void write_header(int outfile, FileHeader *header){
     write_Bytes(outfile, header, sizeof(FileHeader));
 }
 
+uint8_t static *symbols[BLOCK];
+
+void createBlock(void){
+    symbols = (uint8_t *)calloc(BLOCK, sizeof(uint8_t));
+    return;
+}
+
+void clearBlock(void){
+    free(symbols);
+    return;
+}
+
 //
 // Read one symbol from infile into *sym. Return true if a symbol was successfully read, false
 // otherwise.
@@ -103,7 +105,19 @@ void write_header(int outfile, FileHeader *header){
 // false.
 //
 bool read_sym(int infile, uint8_t *sym){
-
+    createBlock();
+    uint64_t symcursor = 0;
+    uint32_t read = 0;
+    read = read_bytes(infile, symbols, BLOCK);
+    while(read != 0){
+        total_syms += read;
+        for(int i = 0; i < BLOCK; i++){
+            sym[symcursor] = symbols[i]
+        }
+        symcursor++;
+        read = read_bytes(infile, symbols, BLOCK);
+    }
+    clearBlock(); 
 }
 
 //
@@ -121,8 +135,30 @@ bool read_sym(int infile, uint8_t *sym){
 // reaches the end of the buffer it needs to write out the contents of the buffer to outfile; you
 // may use flush_pairs to do this.
 //
+uint8_t *pairbuffer;
 void write_pair(int outfile, uint16_t code, uint8_t sym, int bitlen){
+    uint32_t vectorlen = bitlen + 8;
+    uint32_t = vector;
+    //just put char in first, shift left by bitlen, then insert code in right most bits
+    vector = sym;
+    vector = vector << bitlen;
+    vector = vector | code;
+    //vector now written
 
+   //vector may be 12 bits, how to write as a byte to a buffer?
+   //or a vector of 8 bits with the 32 bit vector, right shift 32 bit vector by 8 until byteVector == 0
+    uint8_t byteVector = 0;
+    byteVector = byteVector | vector;
+    pairbuffer = (uint8_t *) calloc(BLOCK, sizeof(uint8_t));
+    uint32_t count = 0;
+    while(byteVector != 0){
+        pairbuffer[count] = byteVector;
+        count++;
+        vector = vector >> 8;
+        byteVector = byteVector | vector;
+    }
+    //we now have a buffer with the bits of the pair written, write buffer to output.
+    write_bytes(outfile, buffer, count);
 }
 
 //
@@ -137,7 +173,8 @@ void write_pair(int outfile, uint16_t code, uint8_t sym, int bitlen){
 // flushing it every time.
 //
 void flush_pairs(int outfile){
-
+    
+    return;
 }
 
 //
@@ -149,8 +186,16 @@ void flush_pairs(int outfile){
 //
 // It may be useful to write a helper function that reads a single bit from a file using a buffer.
 //
-bool read_pair(int infile, uint16_t *code, uint8_t *sym, int bitlen){
-
+bool read_pair(int infile, uint16_t *code, uint8_t *sym, int bitlen){ 
+    int read = read_bytes(infile, code, bitlen);
+    if(read == 0){
+        return false;
+    }
+    while(read != 0){
+        read_bytes(infile, sym, 8);
+        read = read_bytes(infile, code, bitlen);
+    }
+    return true;
 }
 
 //
@@ -160,8 +205,21 @@ bool read_pair(int infile, uint16_t *code, uint8_t *sym, int bitlen){
 // likely sometimes fill up your buffer in the middle of writing a word, so you cannot only check
 // that the buffer is full at the end of this function).
 //
-void write_word(int outfile, Word *w){
+static uint8_t *buffer;
 
+void write_word(int outfile, Word *w){
+    buffer = (uint8_t *)calloc(BLOCK, sizeof(uint8_t));
+    uint32_t cursor = 0;
+    for(int i = 0; i < w -> len; i++){
+        if(cursor == BLOCK - 1){
+            write_bytes(outfile, buffer, w -> len);
+            buffer = {0};
+            cursor = 0;
+        }
+        buffer[cursor] = w -> sym;
+        cursor++;
+    }
+     
 }
 
 //
@@ -171,7 +229,8 @@ void write_word(int outfile, Word *w){
 // would have symbols remaining in the buffer that were never written.
 //
 void flush_words(int outfile){
-
+    write_bytes(outfile, buffer, BLOCK);
+    free(buffer); 
 }
 
 

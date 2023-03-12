@@ -24,6 +24,15 @@ void usage(char *exec) {
         exec);
 }
 
+int bitlength(size_t num){
+    uint64_t count = 0;  
+    while(num/2 != 0){
+        num = num/2;
+        count++;
+    }
+    return count;
+}
+
 int main(int argc, char **argv) {
     //first runs through all arguments and
     //determines which ones have been called
@@ -59,6 +68,18 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-
+    WordTable table = wt_create();
+    uint8_t curr_sym = 0;
+    uint16_t curr_code = 0;
+    uint16_t next_code = START_CODE;
+    while read_pair(input, &curr_code, &curr_sym, bit-length(next_code) == true){
+        write_word(output, table[next_code]);
+        next_code += 1;
+        if(next_code == MAX_CODE){
+            wt_reset(table);
+            next_code = start_code;
+        }
+    }
+    flush_words(output);
     return 0;
 }
