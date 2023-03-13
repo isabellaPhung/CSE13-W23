@@ -4,9 +4,13 @@
 #include "trie.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define OPTIONS "vi:o:"
+//uint64_t total_syms = 0;
+//uint64_t total_bits = 0;
+
 
 //prints instructions for use
 void usage(char *exec) {
@@ -31,6 +35,10 @@ int bitlength(size_t num){
         count++;
     }
     return count;
+}
+
+void printStatistics(void){
+    return; //TODO
 }
 
 int main(int argc, char **argv) {
@@ -67,39 +75,45 @@ int main(int argc, char **argv) {
         printf("Error opening %s\n", filename);
         return 0;
     }
+    int inputFileNum = fileno(input);
+    int outputFileNum = fileno(output);
     
-    Trie root = trie_create();
-    Trie curr_node = root;
-    Trie prev_node = NULL;
-    Trie next_node = NULL;
-    uint8_t cur_sym = 0;
+    TrieNode *root = trie_create();
+    TrieNode *curr_node = root;
+    TrieNode *prev_node = NULL;
+    TrieNode *next_node = NULL;
+    uint8_t curr_sym = 0;
     uint8_t prev_sym = 0;
     uint16_t next_code = START_CODE;
-    while (read_sym(infile, &curr_sym) == true){
-        next_node = Trie_step(curr_node, curr_sym);
+    while (read_sym(inputFileNum, &curr_sym) == true){
+        next_node = trie_step(curr_node, curr_sym);
         if(next_node != NULL){
             prev_node = curr_node;
             curr_node = next_node;
         }else{
-            write_pair(output, curr_node.code, curr_sym, bitlength(next_code));
-            curr_node.children[curr_sym] = Trie_node_create(next_code);
+            write_pair(outputFileNum, curr_node->code, curr_sym, bitlength(next_code));
+            curr_node->children[curr_sym] = trie_node_create(next_code);
             curr_node = root;
             next_code += 1;
 
         }
         if(next_code == MAX_CODE){
-            Trie_reset(root);
+            trie_reset(root);
             curr_node = root;
             next_code = START_CODE;
         }
         prev_sym = curr_sym;
     } 
     if(curr_node != root){
-        write_pair(output, prev_node.code, prev_sym, bitlen(next_code));
+        write_pair(outputFileNum, prev_node->code, prev_sym, bitlength(next_code));
         next_code = (next_code + 1) % MAX_CODE;
 
     }
-    write_pair(output, STOP_CODE, 0, bitlength(next_code));
-    flush_pairs(output);
+    write_pair(outputFileNum, STOP_CODE, 0, bitlength(next_code));
+    //flush_pairs(outputFileNum);
+    
+    if(statistics){
+        printStatistics();
+    }
     return 0;
 }

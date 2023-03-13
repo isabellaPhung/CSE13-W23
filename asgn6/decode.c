@@ -4,9 +4,12 @@
 #include "word.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define OPTIONS "vi:o:"
+//uint64_t total_syms = 0;
+//uint64_t total_bits = 0;
 
 //prints instructions for use
 void usage(char *exec) {
@@ -31,6 +34,10 @@ int bitlength(size_t num){
         count++;
     }
     return count;
+}
+
+void printStatistics(void){
+    return;//TODO
 }
 
 int main(int argc, char **argv) {
@@ -67,19 +74,24 @@ int main(int argc, char **argv) {
         printf("Error opening %s\n", filename);
         return 0;
     }
+    int inputFileNum = fileno(input);
+    int outputFileNum = fileno(output);
 
-    WordTable table = wt_create();
+    WordTable *table = wt_create();
     uint8_t curr_sym = 0;
     uint16_t curr_code = 0;
     uint16_t next_code = START_CODE;
-    while read_pair(input, &curr_code, &curr_sym, bit-length(next_code) == true){
-        write_word(output, table[next_code]);
+    while (read_pair(inputFileNum, &curr_code, &curr_sym, bitlength(next_code) == true)){
+        write_word(outputFileNum, table[next_code]);
         next_code += 1;
         if(next_code == MAX_CODE){
             wt_reset(table);
-            next_code = start_code;
+            next_code = START_CODE;
         }
     }
-    flush_words(output);
+    flush_words(outputFileNum);
+    if(statistics){
+        printStatistics();
+    }
     return 0;
 }

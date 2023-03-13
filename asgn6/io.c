@@ -1,5 +1,11 @@
 #include "io.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <inttypes.h>
 
+uint64_t total_syms = 0;
+uint64_t total_bits = 0;
 //
 // Read up to to_read bytes from infile and store them in buf. Return the number of bytes actually
 // read.
@@ -12,8 +18,8 @@
 int read_bytes(int infile, uint8_t *buf, int to_read){
     int bytes_read = 0;
     while(to_read != 0){
-        bytes = read(infile, buf, to_read);
-        if(bytes =< 0){
+        int bytes = read(infile, buf, to_read);
+        if(bytes <= 0){
             break;
         }
         bytes_read += bytes;
@@ -30,9 +36,11 @@ int read_bytes(int infile, uint8_t *buf, int to_read){
 //
 int write_bytes(int outfile, uint8_t *buf, int to_write){
     int bytes_written = 0;
+    //for
     while(to_write != 0){
-        bytes = write(infile, buf, to_write);
-        if(bytes =< 0){
+        printf("bonjour");
+        int bytes = write(outfile, buf, to_write);
+        if(bytes <= 0){
             break;
         }
         bytes_written += bytes;
@@ -69,7 +77,7 @@ int write_bytes(int outfile, uint8_t *buf, int to_write){
 
 //assuming little endianness for now.
 void read_header(int infile, FileHeader *header){
-    read_bytes(infile, header, sizeof(FileHeader));
+    read_bytes(infile, (uint8_t *)header, sizeof(FileHeader));
 }
 
 //
@@ -78,10 +86,10 @@ void read_header(int infile, FileHeader *header){
 //
 
 void write_header(int outfile, FileHeader *header){
-    write_Bytes(outfile, header, sizeof(FileHeader));
+    write_bytes(outfile, (uint8_t *)header, sizeof(FileHeader));
 }
 
-uint8_t static *symbols[BLOCK];
+uint8_t static *symbols;
 
 void createBlock(void){
     symbols = (uint8_t *)calloc(BLOCK, sizeof(uint8_t));
@@ -109,15 +117,19 @@ bool read_sym(int infile, uint8_t *sym){
     uint64_t symcursor = 0;
     uint32_t read = 0;
     read = read_bytes(infile, symbols, BLOCK);
+    if(read == 0){
+        return false;
+    }
     while(read != 0){
         total_syms += read;
         for(int i = 0; i < BLOCK; i++){
-            sym[symcursor] = symbols[i]
+            sym[symcursor] = symbols[i];
         }
         symcursor++;
         read = read_bytes(infile, symbols, BLOCK);
     }
     clearBlock(); 
+    return true;
 }
 
 //
@@ -135,17 +147,17 @@ bool read_sym(int infile, uint8_t *sym){
 // reaches the end of the buffer it needs to write out the contents of the buffer to outfile; you
 // may use flush_pairs to do this.
 //
-uint8_t *pairbuffer;
+static uint8_t *pairbuffer;
 void write_pair(int outfile, uint16_t code, uint8_t sym, int bitlen){
-    uint32_t vectorlen = bitlen + 8;
-    uint32_t = vector;
+    //uint32_t vectorlen = bitlen + 8;
     //just put char in first, shift left by bitlen, then insert code in right most bits
-    vector = sym;
+    uint32_t vector = sym;
+    //printf("%"PRIu32"\n", vector);
     vector = vector << bitlen;
     vector = vector | code;
     //vector now written
 
-   //vector may be 12 bits, how to write as a byte to a buffer?
+   //vector may be 12 bits for example, how to write as a byte to a buffer limited by uint8?
    //or a vector of 8 bits with the 32 bit vector, right shift 32 bit vector by 8 until byteVector == 0
     uint8_t byteVector = 0;
     byteVector = byteVector | vector;
@@ -155,10 +167,15 @@ void write_pair(int outfile, uint16_t code, uint8_t sym, int bitlen){
         pairbuffer[count] = byteVector;
         count++;
         vector = vector >> 8;
+        byteVector = 0; //reset byteVector;
         byteVector = byteVector | vector;
     }
     //we now have a buffer with the bits of the pair written, write buffer to output.
-    write_bytes(outfile, buffer, count);
+    //for(uint32_t i = 0; i < count; i++){
+    //    printf("%"PRIu8 ", ", pairbuffer[i]);
+    //}
+    //printf("\n");
+    write_bytes(outfile, pairbuffer, count);
 }
 
 //
@@ -172,10 +189,12 @@ void write_pair(int outfile, uint16_t code, uint8_t sym, int bitlen){
 // unwritten bits are set to zero. An easy way to do this is by zeroing the entire buffer after
 // flushing it every time.
 //
+
 void flush_pairs(int outfile){
-    
+    read(outfile, NULL, 0);
     return;
 }
+
 
 //
 // Read bitlen bits of a code into *code, and then a full 8-bit symbol into *sym, from infile.
@@ -187,13 +206,13 @@ void flush_pairs(int outfile){
 // It may be useful to write a helper function that reads a single bit from a file using a buffer.
 //
 bool read_pair(int infile, uint16_t *code, uint8_t *sym, int bitlen){ 
-    int read = read_bytes(infile, code, bitlen);
+    int read = read_bytes(infile, (uint8_t *)code, bitlen);
     if(read == 0){
         return false;
     }
     while(read != 0){
         read_bytes(infile, sym, 8);
-        read = read_bytes(infile, code, bitlen);
+        read = read_bytes(infile, (uint8_t *)code, bitlen);
     }
     return true;
 }
@@ -210,13 +229,16 @@ static uint8_t *buffer;
 void write_word(int outfile, Word *w){
     buffer = (uint8_t *)calloc(BLOCK, sizeof(uint8_t));
     uint32_t cursor = 0;
-    for(int i = 0; i < w -> len; i++){
+    for(uint32_t i = 0; i < w -> len; i++){
         if(cursor == BLOCK - 1){
             write_bytes(outfile, buffer, w -> len);
-            buffer = {0};
+            //reset buffer to 0s
+            for(int i = 0; i < BLOCK; i++){
+                buffer[i] = 0;
+            }
             cursor = 0;
         }
-        buffer[cursor] = w -> sym;
+        buffer[cursor] = *(w -> syms);
         cursor++;
     }
      
