@@ -17,13 +17,15 @@ uint64_t total_bits = 0;
 //
 int read_bytes(int infile, uint8_t *buf, int to_read){
     int bytes_read = 0;
+    int bytes = read(infile, buf, to_read);
     while(to_read != 0){
-        int bytes = read(infile, buf, to_read);
+        //printf("%d\n", bytes);
         if(bytes <= 0){
             break;
         }
         bytes_read += bytes;
         to_read -= bytes;
+        bytes = read(infile, buf, to_read); 
     }
     return bytes_read;
 }
@@ -38,7 +40,7 @@ int write_bytes(int outfile, uint8_t *buf, int to_write){
     int bytes_written = 0;
     //for
     while(to_write != 0){
-        printf("bonjour");
+        //printf("%"PRIu8"\n", buf[0]);
         int bytes = write(outfile, buf, to_write);
         if(bytes <= 0){
             break;
@@ -170,11 +172,12 @@ void write_pair(int outfile, uint16_t code, uint8_t sym, int bitlen){
         byteVector = 0; //reset byteVector;
         byteVector = byteVector | vector;
     }
-    //we now have a buffer with the bits of the pair written, write buffer to output.
-    //for(uint32_t i = 0; i < count; i++){
-    //    printf("%"PRIu8 ", ", pairbuffer[i]);
-    //}
-    //printf("\n");
+   // we now have a buffer with the bits of the pair written, write buffer to output.
+//    for(uint32_t i = 0; i < count; i++){
+ //       printf("%"PRIu8 ", ", pairbuffer[i]);
+  //  }
+   // printf("\n");
+
     write_bytes(outfile, pairbuffer, count);
 }
 
@@ -205,16 +208,105 @@ void flush_pairs(int outfile){
 //
 // It may be useful to write a helper function that reads a single bit from a file using a buffer.
 //
+//calculates 2^(exponent)
+uint32_t twoexponent(int exponent){
+    uint32_t total = 1;
+    for(int i = 0; i < exponent; i++){
+        total *= 2;
+    }
+    return total;
+}
+
+static uint8_t *readpairbuffer;
+static int readpaircursor = 0;
+static uint32_t bufferVector = 0;
+
+void makereadpair(void){
+    readpairbuffer = (uint8_t *) calloc(BLOCK, sizeof(uint8_t));
+}
+
 bool read_pair(int infile, uint16_t *code, uint8_t *sym, int bitlen){ 
-    int read = read_bytes(infile, (uint8_t *)code, bitlen);
-    if(read == 0){
+    if(readpaircursor == 0){
+        makereadpair();
+        
+        read_bytes(infile, readpairbuffer, BLOCK);    
+        bufferVector = readpairbuffer[readpaircursor/8+3] << 24 | readpairbuffer[readpaircursor/8+2] << 16 | readpairbuffer[readpaircursor/8+1] << 8 | readpairbuffer[readpaircursor/8];
+        readpaircursor += 32;
+    }
+   
+    printf("readpaircursor:%d\n",readpaircursor);
+   //extract code and sym
+    printf("bufferVector: %"PRIu32"\n",bufferVector);
+    uint32_t codeVector = (twoexponent(bitlen)-1); 
+    //printf("codeVector: %"PRIu32"\n", codeVector);
+    codeVector = codeVector & bufferVector;
+    *code = codeVector;
+    bufferVector = bufferVector >> bitlen;
+    uint32_t symbolVector = 255;
+    symbolVector = symbolVector & bufferVector;
+    *sym = symbolVector;
+    bufferVector = bufferVector >> 8;
+
+    //sym and code acquired now to add more values to bufferVector
+    int totalbits = 8+bitlen; 
+    int pairindex = readpaircursor / 8;
+    //printf("pairindex: %d\n", pairindex);
+    int bitindex = bitlen % 8;
+    //printf("bitindex: %d\n",bitindex);
+    uint32_t byteVector = 0;
+    int downshift = 0;
+    //int remaining = bitlen;
+
+    if(bitindex != 0){//if cursor is not at start of bit
+        int index = (((pairindex+1)*8)-readpaircursor);
+        downshift = 8-index;
+        byteVector = 0;
+        byteVector = 255 - (twoexponent(downshift)-1);
+        byteVector = byteVector & readpairbuffer[pairindex];
+        byteVector = byteVector >> downshift;
+        byteVector = byteVector << (32-totalbits);
+        bufferVector = bufferVector | byteVector; 
+        readpaircursor += index;
+        //remaining -=
+    }
+  
+    
+    pairindex = readpaircursor/8;
+    //printf("pairindex: %d\n", pairindex);
+    //for(int i = 0; i < 20; i++){
+    //    printf("%"PRIu8"\n", readpairbuffer[i]);
+   // }
+    //remainder of bits that align with the bytes
+    for(int i = 0; i < totalbits/8; i++){
+        //printf("i: %d\n", i);
+        byteVector = 0; 
+        byteVector = byteVector | readpairbuffer[pairindex + i];
+        //printf("byte: %"PRIu8 "\n", readpairbuffer[pairindex + i]);
+        //printf("byteVector: %"PRIu32"\n", byteVector);
+        byteVector = byteVector << ((32-totalbits)+(8*i)-downshift);
+        bufferVector = bufferVector | byteVector;
+    }
+    readpaircursor += pairindex * 8;
+    //printf("pairindex: %d\n", pairindex);
+
+    pairindex = bitlen/ 8;
+
+    //any remaining bits at end
+    byteVector = 0;
+    byteVector = twoexponent(bitindex)-1;
+    byteVector = byteVector & readpairbuffer[pairindex + 1];
+    byteVector = byteVector << 24;
+    bufferVector = bufferVector | byteVector;
+    readpaircursor += bitindex;
+
+    if(readpaircursor >= 4096*8){
+        free(readpairbuffer);
+        readpaircursor = 0;
+        bufferVector = 0;
         return false;
     }
-    while(read != 0){
-        read_bytes(infile, sym, 8);
-        read = read_bytes(infile, (uint8_t *)code, bitlen);
-    }
     return true;
+
 }
 
 //
