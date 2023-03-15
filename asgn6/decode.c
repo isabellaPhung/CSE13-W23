@@ -10,6 +10,8 @@
 #define OPTIONS "vi:o:"
 //uint64_t total_syms = 0;
 //uint64_t total_bits = 0;
+extern uint64_t total_syms; // To count the symbols processed.
+extern uint64_t total_bits;
 
 //prints instructions for use
 void usage(char *exec) {
@@ -27,17 +29,21 @@ void usage(char *exec) {
         exec);
 }
 
-int bitlength(size_t num){
-    uint64_t count = 0;  
-    while(num/2 != 0){
-        num = num/2;
+int bitlength(size_t num) {
+    uint64_t count = 0;
+    while (num / 2 != 0) {
+        num = num / 2;
         count++;
     }
     return count;
 }
 
-void printStatistics(void){
-    return;//TODO
+void printStatistics(void) {
+    float spacePercent = 100 * (1 - (total_bits / total_syms));
+    printf("Compressed file size: %" PRIu64 " bytes\n", total_bits / 8);
+    printf("Uncompressed file size: %" PRIu64 " bytes\n", total_bits);
+    printf("Space saving: %.2f\n", spacePercent);
+    return;
 }
 
 int main(int argc, char **argv) {
@@ -81,16 +87,16 @@ int main(int argc, char **argv) {
     uint8_t curr_sym = 0;
     uint16_t curr_code = 0;
     uint16_t next_code = START_CODE;
-    while (read_pair(inputFileNum, &curr_code, &curr_sym, bitlength(next_code) == true)){
+    while (read_pair(inputFileNum, &curr_code, &curr_sym, bitlength(next_code) == true)) {
         write_word(outputFileNum, table[next_code]);
         next_code += 1;
-        if(next_code == MAX_CODE){
+        if (next_code == MAX_CODE) {
             wt_reset(table);
             next_code = START_CODE;
         }
     }
     flush_words(outputFileNum);
-    if(statistics){
+    if (statistics) {
         printStatistics();
     }
     return 0;

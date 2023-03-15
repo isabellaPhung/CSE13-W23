@@ -11,7 +11,6 @@
 //uint64_t total_syms = 0;
 //uint64_t total_bits = 0;
 
-
 //prints instructions for use
 void usage(char *exec) {
     fprintf(stderr,
@@ -28,17 +27,21 @@ void usage(char *exec) {
         exec);
 }
 
-int bitlength(size_t num){
-    uint64_t count = 0;  
-    while(num/2 != 0){
-        num = num/2;
+int bitlength(size_t num) {
+    uint64_t count = 0;
+    while (num / 2 != 0) {
+        num = num / 2;
         count++;
     }
     return count;
 }
 
-void printStatistics(void){
-    return; //TODO
+void printStatistics(void) {
+    float spacePercent = 100 * (1 - (total_bits / total_syms));
+    printf("Compressed file size: %" PRIu64 " bytes\n", total_bits / 8);
+    printf("Uncompressed file size: %" PRIu64 " bytes\n", total_bits);
+    printf("Space saving: %.2f\n", spacePercent);
+    return;
 }
 
 int main(int argc, char **argv) {
@@ -77,7 +80,7 @@ int main(int argc, char **argv) {
     }
     int inputFileNum = fileno(input);
     int outputFileNum = fileno(output);
-    
+
     TrieNode *root = trie_create();
     TrieNode *curr_node = root;
     TrieNode *prev_node = NULL;
@@ -85,34 +88,32 @@ int main(int argc, char **argv) {
     uint8_t curr_sym = 0;
     uint8_t prev_sym = 0;
     uint16_t next_code = START_CODE;
-    while (read_sym(inputFileNum, &curr_sym) == true){
+    while (read_sym(inputFileNum, &curr_sym) == true) {
         next_node = trie_step(curr_node, curr_sym);
-        if(next_node != NULL){
+        if (next_node != NULL) {
             prev_node = curr_node;
             curr_node = next_node;
-        }else{
+        } else {
             write_pair(outputFileNum, curr_node->code, curr_sym, bitlength(next_code));
             curr_node->children[curr_sym] = trie_node_create(next_code);
             curr_node = root;
             next_code += 1;
-
         }
-        if(next_code == MAX_CODE){
+        if (next_code == MAX_CODE) {
             trie_reset(root);
             curr_node = root;
             next_code = START_CODE;
         }
         prev_sym = curr_sym;
-    } 
-    if(curr_node != root){
+    }
+    if (curr_node != root) {
         write_pair(outputFileNum, prev_node->code, prev_sym, bitlength(next_code));
         next_code = (next_code + 1) % MAX_CODE;
-
     }
     write_pair(outputFileNum, STOP_CODE, 0, bitlength(next_code));
     //flush_pairs(outputFileNum);
-    
-    if(statistics){
+
+    if (statistics) {
         printStatistics();
     }
     return 0;
